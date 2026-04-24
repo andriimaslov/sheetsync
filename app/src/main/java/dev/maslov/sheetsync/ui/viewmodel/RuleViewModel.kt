@@ -2,14 +2,16 @@ package dev.maslov.sheetsync.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.RuleRepository
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-class RuleViewModel(
+@HiltViewModel
+class RuleViewModel @Inject constructor(
     private val repository: RuleRepository
 ) : ViewModel() {
 

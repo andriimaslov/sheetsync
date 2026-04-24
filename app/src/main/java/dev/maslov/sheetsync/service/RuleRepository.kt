@@ -1,6 +1,6 @@
 package dev.maslov.sheetsync.service
 
-import dev.maslov.sheetsync.dao.RuleDao
+import dev.maslov.sheetsync.service.dao.RuleDao
 import dev.maslov.sheetsync.model.Rule
 
 class RuleRepository(private val dao: RuleDao) {

@@ -12,33 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.service.DatabaseProvider
-import dev.maslov.sheetsync.service.RuleRepository
 import dev.maslov.sheetsync.ui.components.RuleCard
 import dev.maslov.sheetsync.ui.components.TopBar
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
-import dev.maslov.sheetsync.ui.viewmodel.RuleViewModelFactory
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Composable
 fun RuleListScreen(
     onOpenSettings: () -> Unit,
-    onSearch: () -> Unit
+    onSearch: () -> Unit,
+    viewModel: RuleViewModel = hiltViewModel()
 ) {
-
-    val context = LocalContext.current
-
-    val viewModel: RuleViewModel = viewModel(
-        factory = RuleViewModelFactory(
-            RuleRepository(
-                DatabaseProvider.getDatabase(context).ruleDao()
-            )
-        )
-    )
 
     val rules by viewModel.rules.collectAsState()
 

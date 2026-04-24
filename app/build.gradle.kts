@@ -1,7 +1,10 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.dagger.hilt)
 }
 
 android {
@@ -54,8 +57,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+    implementation (libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp (libs.hilt.compiler)
+    ksp(libs.androidx.room.compiler)
+
 
 
     testImplementation(libs.junit)
