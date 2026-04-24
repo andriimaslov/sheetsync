@@ -1,29 +1,43 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.ui.screens.sampleRules
-import kotlinx.coroutines.flow.MutableStateFlow
+import dev.maslov.sheetsync.service.RuleRepository
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class RuleViewModel : ViewModel() {
+class RuleViewModel(
+    private val repository: RuleRepository
+) : ViewModel() {
 
-    private val _rules = MutableStateFlow(sampleRules)
-    val rules: StateFlow<List<Rule>> = _rules
+    val rules: StateFlow<List<Rule>> =
+        repository.rules
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    fun toggleRule(ruleId: String) {
-        _rules.value = _rules.value.map { rule ->
-            if (rule.id == ruleId) {
+    fun toggleRule(rule: Rule) {
+        viewModelScope.launch {
+            repository.updateRule(
                 rule.copy(isActive = !rule.isActive)
-            } else rule
+            )
         }
     }
 
-    fun deleteRule(ruleId: String) {
-        _rules.value = _rules.value.filterNot { it.id == ruleId }
+    fun addRule(rule: Rule) {
+        viewModelScope.launch {
+            repository.addRule(rule)
+        }
     }
 
-    fun addRule(rule: Rule) {
-        _rules.value += rule
+    fun deleteRule(rule: Rule) {
+        viewModelScope.launch {
+            repository.deleteRule(rule)
+        }
     }
 }
