@@ -21,6 +21,8 @@ import dev.maslov.sheetsync.ui.components.RuleCard
 import dev.maslov.sheetsync.ui.components.TopBar
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModelFactory
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Composable
 fun RuleListScreen(
@@ -52,13 +54,14 @@ fun RuleListScreen(
             FloatingActionButton(onClick = {
                 viewModel.addRule(
                     Rule(
-                        id = System.currentTimeMillis().toString(),
+                        id = UUID.randomUUID(),
                         title = "New Rule",
                         description = "Demo rule",
                         isActive = true,
-                        createdAt = "Now",
+                        createdAt = LocalDateTime.now(),
                         sheetId = "sheet_new",
-                        lastRun = "Never"
+                        lastRunStatus = "Failed",
+                        lastRunAt = LocalDateTime.now()
                     )
                 )
             }) {

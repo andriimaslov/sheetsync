@@ -2,6 +2,7 @@ package dev.maslov.sheetsync.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(tableName = "rules")
@@ -10,8 +11,8 @@ data class Rule(
     val title: String,
     val description: String,
     val isActive: Boolean,
-    val createdAt: Long,
+    val createdAt: LocalDateTime,
     val sheetId: String,
     val lastRunStatus: String,
-    val lastRunAt: Long
+    val lastRunAt: LocalDateTime
 )
