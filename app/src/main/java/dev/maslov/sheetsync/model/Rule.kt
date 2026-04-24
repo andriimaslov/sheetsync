@@ -2,14 +2,16 @@ package dev.maslov.sheetsync.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(tableName = "rules")
 data class Rule(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: UUID,
     val title: String,
     val description: String,
     val isActive: Boolean,
-    val createdAt: String,
+    val createdAt: Long,
     val sheetId: String,
-    val lastRun: String
+    val lastRunStatus: String,
+    val lastRunAt: Long
 )

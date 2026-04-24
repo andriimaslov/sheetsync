@@ -15,6 +15,6 @@ fun MetaInfoPanel(rule: Rule) {
         Text("Rule ID: ${rule.id}")
         Text("Created: ${rule.createdAt}")
         Text("Sheet ID: ${rule.sheetId}")
-        Text("Last Append: ${rule.lastRun}")
+        Text("Last Append Status: ${rule.lastRunStatus}")
     }
 }
