@@ -1,0 +1,69 @@
+package dev.maslov.sheetsync.ui.screens
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import dev.maslov.sheetsync.model.Rule
+import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
+import java.time.LocalDateTime
+import java.util.UUID
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun AddRuleScreen(
+    onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Add Rule") }, navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, null)
+                }
+            })
+        }) { padding ->
+
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = {
+                    viewModel.addRule(
+                        Rule(
+                            id = UUID.randomUUID(),
+                            title = "New Rule",
+                            description = "Demo rule",
+                            isActive = true,
+                            createdAt = LocalDateTime.now(),
+                            sheetId = "sheet_new",
+                            lastRunStatus = "Failed",
+                            lastRunAt = LocalDateTime.now()
+                        )
+                    )
+                    onBack()
+                }) {
+                Text("Create Rule")
+            }
+        }
+    }
+}

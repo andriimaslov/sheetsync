@@ -42,4 +42,10 @@ class RuleViewModel @Inject constructor(
             repository.deleteRule(rule)
         }
     }
+
+    fun editRule(rule: Rule) {
+        viewModelScope.launch {
+            repository.updateRule(rule)
+        }
+    }
 }

@@ -13,17 +13,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.ui.components.RuleCard
 import dev.maslov.sheetsync.ui.components.TopBar
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Composable
 fun RuleListScreen(
     onOpenSettings: () -> Unit,
+    onAddRule: () -> Unit,
     onSearch: () -> Unit,
+    onEditRule: (UUID) -> Unit,
     viewModel: RuleViewModel = hiltViewModel()
 ) {
 
@@ -38,21 +38,8 @@ fun RuleListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                viewModel.addRule(
-                    Rule(
-                        id = UUID.randomUUID(),
-                        title = "New Rule",
-                        description = "Demo rule",
-                        isActive = true,
-                        createdAt = LocalDateTime.now(),
-                        sheetId = "sheet_new",
-                        lastRunStatus = "Failed",
-                        lastRunAt = LocalDateTime.now()
-                    )
-                )
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            FloatingActionButton(onClick = onAddRule) {
+                Icon(Icons.Default.Add, "add rule")
             }
         }
     ) { padding ->
@@ -62,7 +49,8 @@ fun RuleListScreen(
                 RuleCard(
                     rule = rule,
                     onToggle = { viewModel.toggleRule(rule) },
-                    onDelete = { viewModel.deleteRule(rule) }
+                    onDelete = { viewModel.deleteRule(rule) },
+                    onEdit = { onEditRule(rule.id)}
                 )
             }
         }

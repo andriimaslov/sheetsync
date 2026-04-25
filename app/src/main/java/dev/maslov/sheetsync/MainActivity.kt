@@ -18,7 +18,6 @@ import dev.maslov.sheetsync.ui.theme.SheetSyncTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             SheetSyncTheme {
                 AppNavGraph()
