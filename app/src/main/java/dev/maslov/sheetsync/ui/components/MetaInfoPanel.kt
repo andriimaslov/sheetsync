@@ -11,7 +11,6 @@ import dev.maslov.sheetsync.model.Rule
 @Composable
 fun MetaInfoPanel(rule: Rule) {
     Column(modifier = Modifier.padding(top = 12.dp)) {
-
         Text("Rule ID: ${rule.id}")
         Text("Created: ${rule.createdAt}")
         Text("Sheet ID: ${rule.sheetId}")

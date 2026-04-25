@@ -26,7 +26,6 @@ fun RuleListScreen(
     onEditRule: (UUID) -> Unit,
     viewModel: RuleViewModel = hiltViewModel()
 ) {
-
     val rules by viewModel.rules.collectAsState()
 
     Scaffold(
@@ -50,7 +49,7 @@ fun RuleListScreen(
                     rule = rule,
                     onToggle = { viewModel.toggleRule(rule) },
                     onDelete = { viewModel.deleteRule(rule) },
-                    onEdit = { onEditRule(rule.id)}
+                    onEdit = { onEditRule(rule.id) }
                 )
             }
         }

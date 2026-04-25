@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-@HiltViewModel
-class RuleViewModel @Inject constructor(
-    private val repository: RuleRepository
-) : ViewModel() {
 
+@HiltViewModel
+class RuleViewModel
+@Inject
+constructor(private val repository: RuleRepository) : ViewModel() {
     val rules: StateFlow<List<Rule>> =
         repository.rules
             .stateIn(

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.spotless)
 }
 
 android {
@@ -58,12 +59,10 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation (libs.hilt.android)
+    implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    ksp (libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
-
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -72,4 +71,16 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        ktlint("1.7.1")
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint("1.7.1")
+    }
 }

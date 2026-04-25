@@ -12,11 +12,7 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
-    title: String,
-    onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit
-) {
+fun TopBar(title: String, onSearchClick: () -> Unit, onSettingsClick: () -> Unit) {
     TopAppBar(
         title = { Text(title) },
         actions = {

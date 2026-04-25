@@ -19,11 +19,7 @@ import java.util.UUID
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RuleEditScreen(
-    ruleId: UUID,
-    onBack: () -> Unit,
-    viewModel: RuleViewModel = hiltViewModel()
-) {
+fun RuleEditScreen(ruleId: UUID, onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()) {
     val rules by viewModel.rules.collectAsState()
 
     val rule = rules.find { it.id == ruleId }

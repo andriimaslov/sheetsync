@@ -2,12 +2,14 @@ package dev.maslov.sheetsync
 
 import java.util.UUID
 
-sealed class Screen(val route: String) {
-    object RuleList : Screen("rules")
-    object Settings : Screen("settings")
-    object AddRule : Screen("add_rule")
+sealed class Routes(val value: String) {
+    object RuleList : Routes("rules")
 
-    object RuleEdit : Screen("rule_edit/{ruleId}") {
+    object Settings : Routes("settings")
+
+    object AddRule : Routes("add_rule")
+
+    object RuleEdit : Routes("rule_edit/{ruleId}") {
         fun createRoute(ruleId: UUID) = "rule_edit/$ruleId"
     }
 }

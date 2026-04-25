@@ -27,9 +27,7 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AddRuleScreen(
-    onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()
-) {
+fun AddRuleScreen(onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Add Rule") }, navigationIcon = {
@@ -37,10 +35,12 @@ fun AddRuleScreen(
                     Icon(Icons.Default.ArrowBack, null)
                 }
             })
-        }) { padding ->
+        }
+    ) { padding ->
 
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(padding)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -61,7 +61,8 @@ fun AddRuleScreen(
                         )
                     )
                     onBack()
-                }) {
+                }
+            ) {
                 Text("Create Rule")
             }
         }

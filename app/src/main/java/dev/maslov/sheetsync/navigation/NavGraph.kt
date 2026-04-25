@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import dev.maslov.sheetsync.Screen
+import dev.maslov.sheetsync.Routes
 import dev.maslov.sheetsync.ui.screens.AddRuleScreen
 import dev.maslov.sheetsync.ui.screens.RuleEditScreen
 import dev.maslov.sheetsync.ui.screens.RuleListScreen
@@ -20,35 +20,35 @@ fun AppNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.RuleList.route
+        startDestination = Routes.RuleList.value
     ) {
         composable("rules") {
             RuleListScreen(
-                onOpenSettings = { navController.navigate(Screen.Settings.route) },
+                onOpenSettings = { navController.navigate(Routes.Settings.value) },
                 onAddRule = {
-                    navController.navigate(Screen.AddRule.route)
+                    navController.navigate(Routes.AddRule.value)
                 },
                 onSearch = { navController.navigate("search") },
-                onEditRule = { ruleId -> navController.navigate(Screen.RuleEdit.createRoute(ruleId)) }
+                onEditRule = { ruleId -> navController.navigate(Routes.RuleEdit.createRoute(ruleId)) }
             )
         }
 
-        composable(Screen.Settings.route) {
+        composable(Routes.Settings.value) {
             SettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
 
-
-        composable(Screen.AddRule.route) {
+        composable(Routes.AddRule.value) {
             AddRuleScreen(
                 onBack = { navController.popBackStack() }
             )
         }
 
         composable(
-            route = Screen.RuleEdit.route,
-            arguments = listOf(
+            route = Routes.RuleEdit.value,
+            arguments =
+            listOf(
                 navArgument("ruleId") { type = NavType.StringType }
             )
         ) { backStackEntry ->

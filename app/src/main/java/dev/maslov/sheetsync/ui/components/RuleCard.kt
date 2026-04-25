@@ -25,22 +25,17 @@ import dev.maslov.sheetsync.model.Rule
 import java.util.UUID
 
 @Composable
-fun RuleCard(
-    rule: Rule,
-    onToggle: () -> Unit,
-    onDelete: () -> Unit,
-    onEdit: (UUID) -> Unit
-) {
+fun RuleCard(rule: Rule, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: (UUID) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
+        modifier =
+        Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .clickable { expanded = !expanded }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
@@ -48,10 +43,12 @@ fun RuleCard(
                 Column {
                     Text(rule.title)
                     Text(
-                        text = if (rule.isActive)
+                        text =
+                        if (rule.isActive) {
                             rule.description
-                        else
+                        } else {
                             "${rule.description} (Paused)"
+                        }
                     )
                 }
 
