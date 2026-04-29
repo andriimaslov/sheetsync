@@ -1,5 +1,6 @@
 package dev.maslov.sheetsync.ui.screens
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,8 +12,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import dev.maslov.sheetsync.ui.components.MetaInfoPanel
+import dev.maslov.sheetsync.ui.components.RuleEditForm
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.util.UUID
 
@@ -35,11 +37,18 @@ fun RuleEditScreen(ruleId: UUID, onBack: () -> Unit, viewModel: RuleViewModel = 
                 }
             )
         }
-    ) {
+    ) { padding ->
         if (rule != null) {
-            MetaInfoPanel(rule)
+            RuleEditForm(
+                rule = rule,
+                onSave = { updatedRule ->
+                    viewModel.editRule(updatedRule)
+                    onBack()
+                },
+                modifier = Modifier.padding(padding)
+            )
         } else {
-            Text("Rule not found")
+            Text("ups no rule??")
         }
     }
 }

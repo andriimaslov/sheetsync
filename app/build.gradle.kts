@@ -84,3 +84,7 @@ spotless {
         ktlint("1.7.1")
     }
 }
+
+tasks.named("build") {
+    dependsOn("spotlessApply")
+}

@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dev.maslov.sheetsync.model.Rule
+import dev.maslov.sheetsync.ui.components.RuleAddForm
+import dev.maslov.sheetsync.ui.components.RuleEditForm
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.time.LocalDateTime
 import java.util.UUID
@@ -46,25 +48,13 @@ fun AddRuleScreen(onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = {
-                    viewModel.addRule(
-                        Rule(
-                            id = UUID.randomUUID(),
-                            title = "New Rule",
-                            description = "Demo rule",
-                            isActive = true,
-                            createdAt = LocalDateTime.now(),
-                            sheetId = "sheet_new",
-                            lastRunStatus = "Failed",
-                            lastRunAt = LocalDateTime.now()
-                        )
-                    )
+            RuleAddForm(
+                onSave = { newRule ->
+                    viewModel.addRule(newRule)
                     onBack()
-                }
-            ) {
-                Text("Create Rule")
-            }
+                },
+                modifier = Modifier.padding(padding)
+            )
         }
     }
 }
