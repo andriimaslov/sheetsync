@@ -41,7 +41,7 @@ fun RuleEditForm(rule: Rule, onSave: (Rule) -> Unit, appList: List<AppModel>, mo
     val sheetOptions = listOf("sheet_123", "sheet_456", "sheet_789")
     // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
-    var selectedApp by remember { mutableStateOf<AppModel?>(null) }
+    var selectedApp by remember { mutableStateOf(appList.find { it.packageName == rule.appId }) }
 
     Column(
         modifier = modifier

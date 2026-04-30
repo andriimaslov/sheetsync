@@ -1,5 +1,6 @@
 package dev.maslov.sheetsync.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
@@ -14,5 +15,7 @@ data class Rule(
     val createdAt: LocalDateTime,
     val sheetId: String,
     val lastRunStatus: String,
-    val lastRunAt: LocalDateTime
+    val lastRunAt: LocalDateTime,
+    @ColumnInfo(defaultValue = "none")
+    val appId: String
 )
