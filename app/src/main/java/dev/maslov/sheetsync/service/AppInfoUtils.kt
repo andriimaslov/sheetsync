@@ -36,7 +36,6 @@ suspend fun fetchAppsWithNotifications(context: Context): List<AppModel> = withC
         .sortedBy { it.name.lowercase() }
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun isNotificationPermissionGranted(context: Context, packageName: String): Boolean =
     context.packageManager.checkPermission(
         Manifest.permission.POST_NOTIFICATIONS,
