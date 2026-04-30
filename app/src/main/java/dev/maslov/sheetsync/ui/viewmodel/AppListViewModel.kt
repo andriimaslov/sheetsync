@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class AppListViewModel @Inject constructor(@ApplicationContext private val context: Context) : ViewModel() {
+class AppListViewModel @Inject constructor(@param:ApplicationContext private val context: Context) : ViewModel() {
 
     private val _uiState = MutableStateFlow<List<AppModel>>(emptyList())
     val uiState: StateFlow<List<AppModel>> = _uiState.asStateFlow()

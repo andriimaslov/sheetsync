@@ -48,10 +48,9 @@ fun RuleListScreen(
     ) { padding ->
 
         LazyColumn(modifier = Modifier.padding(padding)) {
-
             items(rules, key = { it.id }) { rule ->
 
-                val app = appList.find { it.packageName ==  rule.appId}
+                val app = appList.find { it.packageName == rule.appId }
                 RuleCard(
                     rule = rule,
                     app = app,

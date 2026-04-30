@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.maslov.sheetsync.service.RuleRepository
 import dev.maslov.sheetsync.service.SheetSyncDB
 import dev.maslov.sheetsync.service.dao.RuleDao
+import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import jakarta.inject.Singleton
 
 @Module
@@ -29,4 +30,7 @@ object AppModule {
 
     @Provides
     fun provideRepository(dao: RuleDao): RuleRepository = RuleRepository(dao)
+
+    @Provides
+    fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)
 }

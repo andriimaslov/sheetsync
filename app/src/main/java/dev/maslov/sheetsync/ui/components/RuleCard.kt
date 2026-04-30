@@ -43,7 +43,7 @@ fun RuleCard(rule: Rule, app: AppModel?, onToggle: () -> Unit, onDelete: () -> U
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if(app != null) {
+                if (app != null) {
                     AsyncImage(
                         model = app.icon,
                         contentDescription = null,

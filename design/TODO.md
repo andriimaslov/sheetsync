@@ -1,7 +1,7 @@
-- worker. load all active rules on a startup. execute fetched rules (in parallel or seq)
-- notification reader. parse notification content according to a regular expression?
+- worker. ~~load all active rules on a startup~~ DONE. execute fetched rules (in parallel or seq)
+- ~~notification reader~~ DONE. parse notification content according to a regular expression?
 - google cloud console. oauth2.
 - sheet API integration
 - fetch all sheet api
 - modify sheet api
-- app list 
+- ~~app list~~ DONE 
