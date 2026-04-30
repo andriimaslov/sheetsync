@@ -22,6 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.ui.components.RuleAddForm
 import dev.maslov.sheetsync.ui.components.RuleEditForm
+import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.time.LocalDateTime
 import java.util.UUID
@@ -29,7 +30,11 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AddRuleScreen(onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()) {
+fun AddRuleScreen(
+    onBack: () -> Unit,
+    viewModel: RuleViewModel = hiltViewModel(),
+    appListViewModel: AppListViewModel = hiltViewModel()
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Add Rule") }, navigationIcon = {

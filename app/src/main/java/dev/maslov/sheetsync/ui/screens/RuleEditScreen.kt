@@ -1,5 +1,7 @@
 package dev.maslov.sheetsync.ui.screens
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,16 +16,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.maslov.sheetsync.ui.components.RuleEditForm
+import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.util.UUID
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RuleEditScreen(ruleId: UUID, onBack: () -> Unit, viewModel: RuleViewModel = hiltViewModel()) {
+fun RuleEditScreen(
+    ruleId: UUID,
+    onBack: () -> Unit,
+    viewModel: RuleViewModel = hiltViewModel(),
+    appListViewModel: AppListViewModel = hiltViewModel()
+) {
     val rules by viewModel.rules.collectAsState()
-
+    val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
     val rule = rules.find { it.id == ruleId }
 
     Scaffold(
@@ -45,6 +56,7 @@ fun RuleEditScreen(ruleId: UUID, onBack: () -> Unit, viewModel: RuleViewModel = 
                     viewModel.editRule(updatedRule)
                     onBack()
                 },
+                appList = apps,
                 modifier = Modifier.padding(padding)
             )
         } else {

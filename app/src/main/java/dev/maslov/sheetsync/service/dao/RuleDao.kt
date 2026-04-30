@@ -14,6 +14,9 @@ interface RuleDao {
     @Query("SELECT * FROM rules")
     fun getAllRules(): Flow<List<Rule>>
 
+    @Query("SELECT * FROM rules WHERE isActive=1")
+    fun getAllActiveRules(): Flow<List<Rule>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRule(rule: Rule)
 
