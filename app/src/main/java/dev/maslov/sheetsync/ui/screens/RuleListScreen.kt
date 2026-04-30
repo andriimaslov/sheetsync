@@ -13,8 +13,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.maslov.sheetsync.ui.components.RuleCard
 import dev.maslov.sheetsync.ui.components.TopBar
+import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.util.UUID
 
@@ -24,9 +26,11 @@ fun RuleListScreen(
     onAddRule: () -> Unit,
     onSearch: () -> Unit,
     onEditRule: (UUID) -> Unit,
-    viewModel: RuleViewModel = hiltViewModel()
+    viewModel: RuleViewModel = hiltViewModel(),
+    appListViewModel: AppListViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
+    val appList by appListViewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -44,9 +48,13 @@ fun RuleListScreen(
     ) { padding ->
 
         LazyColumn(modifier = Modifier.padding(padding)) {
+
             items(rules, key = { it.id }) { rule ->
+
+                val app = appList.find { it.packageName ==  rule.appId}
                 RuleCard(
                     rule = rule,
+                    app = app,
                     onToggle = { viewModel.toggleRule(rule) },
                     onDelete = { viewModel.deleteRule(rule) },
                     onEdit = { onEditRule(rule.id) }

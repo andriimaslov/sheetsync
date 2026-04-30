@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -21,11 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
 import java.util.UUID
 
 @Composable
-fun RuleCard(rule: Rule, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: (UUID) -> Unit) {
+fun RuleCard(rule: Rule, app: AppModel?, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: (UUID) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -40,6 +43,13 @@ fun RuleCard(rule: Rule, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: (UU
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                if(app != null) {
+                    AsyncImage(
+                        model = app.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
                 Column {
                     Text(rule.title)
                     Text(
