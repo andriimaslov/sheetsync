@@ -10,7 +10,6 @@ import dev.maslov.sheetsync.model.AppModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 suspend fun fetchAppsWithNotifications(context: Context): List<AppModel> = withContext(Dispatchers.IO) {
     val pm = context.packageManager
 

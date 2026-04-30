@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @HiltViewModel
 class AppListViewModel @Inject constructor(@ApplicationContext private val context: Context) : ViewModel() {
 

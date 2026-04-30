@@ -31,7 +31,6 @@ import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import java.time.LocalDateTime
 import java.util.UUID
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
