@@ -1,5 +1,6 @@
 package dev.maslov.sheetsync.service
 
+import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -46,9 +47,20 @@ class NotificationListener : NotificationListenerService() {
 
         // Check if notification is from an app in active rules
         val matchedRule = activeRules.find { it.appId == packageName }
+        val extras = sbn.notification.extras
+        val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
 
         if (matchedRule != null) {
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
+            val bankTransaction = parseNotificationText(notificationText)
+            if (bankTransaction != null) {
+                Log.d(
+                    TAG,
+                    "✓ Parsed notification: amount: ${bankTransaction.amount}, description: ${bankTransaction.description}"
+                )
+            } else {
+                Log.d(TAG, "✗ Failed to parse bank transaction from notification text")
+            }
         } else {
             Log.d(TAG, "✗ No matching rule for package: $packageName")
         }
