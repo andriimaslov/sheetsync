@@ -11,9 +11,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -32,7 +38,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -40,15 +49,22 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
+import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
 
     // Refresh permission status when screen resumes/becomes visible
     LaunchedEffect(lifecycleOwner) {
@@ -60,6 +76,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
             }
         })
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,106 +89,190 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
             )
         }
     ) { paddingValues ->
-        // Notification Permission Status Card
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = if (isNotificationListenerEnabled) {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    } else {
-                        MaterialTheme.colorScheme.errorContainer
-                    },
-                    shape = MaterialTheme.shapes.medium
-                )
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            // Status header with icon
-            val icon = if (isNotificationListenerEnabled) {
-                Icons.Default.CheckCircle
-            } else {
-                Icons.Default.Warning
-            }
-            val statusColor = if (isNotificationListenerEnabled) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.error
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = statusColor,
-                    modifier = Modifier.padding(end = 12.dp)
-                )
-                Text(
-                    text = if (isNotificationListenerEnabled) {
-                        "Notification Access: Enabled"
-                    } else {
-                        "Notification Access: Disabled"
-                    },
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            // Description text
+            // Account Section
             Text(
-                text = if (isNotificationListenerEnabled) {
-                    "SheetSync can monitor notifications from other apps."
-                } else {
-                    "SheetSync needs notification access to monitor incoming notifications from selected apps. Tap the button below to enable it."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 12.dp, start = 10.dp)
+                text = "Account",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // Enable button (only show if disabled)
-            if (!isNotificationListenerEnabled) {
-                Button(
-                    onClick = {
-                        val intent = viewModel.getNotificationSettingsIntent()
-                        context.startActivity(intent)
-                        // Refresh status after returning from settings
-                        viewModel.refreshNotificationPermissionStatus()
-                    },
+            if (authState.isLoggedIn && authState.user != null) {
+                // User Info Card
+                Column(
                     modifier = Modifier
-                        .padding(top = 12.dp)
                         .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(16.dp)
                 ) {
-                    Text("Open Notification Access Settings")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Profile Picture
+                        if (authState.user?.profilePicUrl != null) {
+                            AsyncImage(
+                                model = authState.user?.profilePicUrl,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = authState.user?.name?.firstOrNull()?.uppercase() ?: "?",
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 12.dp)
+                        ) {
+                            Text(
+                                text = authState.user?.name ?: "Unknown",
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(
+                                text = authState.user?.email ?: "unknown@example.com",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Logged in",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = { authViewModel.logout() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    ) {
+                        Text("Logout")
+                    }
+                }
+            } else {
+                // Not logged in message
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Not logged in",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
-        }
-    }
 
-    val channelId = "CHANNEL_ID"
+            Spacer(modifier = Modifier.height(24.dp))
 
-    // 2. Permission Launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            showSimpleNotification(context, channelId)
-        }
-    }
+            // Notification Permission Section
+            Text(
+                text = "Notifications",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = {
-            // 3. Check and request permission
-            when (PackageManager.PERMISSION_GRANTED) {
-                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) -> {
-                    showSimpleNotification(context, channelId)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = if (isNotificationListenerEnabled) {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.errorContainer
+                        },
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .padding(16.dp)
+            ) {
+                val icon = if (isNotificationListenerEnabled) {
+                    Icons.Default.CheckCircle
+                } else {
+                    Icons.Default.Warning
                 }
-                else -> {
-                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                val statusColor = if (isNotificationListenerEnabled) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.error
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = statusColor,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        text = if (isNotificationListenerEnabled) {
+                            "Notification Access: Enabled"
+                        } else {
+                            "Notification Access: Disabled"
+                        },
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+
+                Text(
+                    text = if (isNotificationListenerEnabled) {
+                        "SheetSync can monitor notifications from other apps."
+                    } else {
+                        "SheetSync needs notification access to monitor incoming notifications from selected apps. Tap the button below to enable it."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+
+                if (!isNotificationListenerEnabled) {
+                    Button(
+                        onClick = {
+                            val intent = viewModel.getNotificationSettingsIntent()
+                            context.startActivity(intent)
+                            viewModel.refreshNotificationPermissionStatus()
+                        },
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("Open Notification Access Settings")
+                    }
                 }
             }
-        }) {
-            Text("Fire Notification")
         }
     }
 }

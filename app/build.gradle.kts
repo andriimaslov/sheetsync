@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.google.secrets)
 }
 
 android {
@@ -39,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     buildToolsVersion = "36.0.0"
 }
@@ -62,6 +64,11 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.google.id)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.security.crypto)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 

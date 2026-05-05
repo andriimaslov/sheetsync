@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.maslov.sheetsync.service.AuthRepository
 import dev.maslov.sheetsync.service.RuleRepository
 import dev.maslov.sheetsync.service.SheetSyncDB
 import dev.maslov.sheetsync.service.dao.RuleDao
@@ -30,6 +31,12 @@ object AppModule {
 
     @Provides
     fun provideRepository(dao: RuleDao): RuleRepository = RuleRepository(dao)
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository {
+        return AuthRepository(context, BuildConfig.OAUTH_CLIENT_ID)
+    }
 
     @Provides
     fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)
