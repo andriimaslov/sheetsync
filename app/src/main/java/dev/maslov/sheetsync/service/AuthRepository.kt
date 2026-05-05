@@ -16,13 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class AuthRepository(private val context: Context, private val googleClientId: String) {
     private val _authState = MutableStateFlow<AuthState>(AuthState())
     val authState = _authState.asStateFlow()
-
     private val credentialManager = CredentialManager.create(context)
-
-//    init {
-//        // Restore user session on initialization
-//        restoreUserSession()
-//    }
 
     suspend fun restoreUserSession() {
         try {
@@ -46,6 +40,8 @@ class AuthRepository(private val context: Context, private val googleClientId: S
     }
 
     suspend fun handleSignIn(): Result<Unit> = runCatching {
+        val realPackageName = context.packageName
+        Log.d(TAG,"The ID Google sees is: $realPackageName")
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(googleClientId)
@@ -55,12 +51,21 @@ class AuthRepository(private val context: Context, private val googleClientId: S
             .addCredentialOption(googleIdOption)
             .build()
 
-        val credential = credentialManager.getCredential(
+        val result = credentialManager.getCredential(
             context = context,
             request = request
-        ).credential
+        )
+        val credential = result.credential
 
-        handleCredentialResult(credential)
+        if (credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            handleCredentialResult(googleIdTokenCredential)
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception("Unexpected credential type: ${credential.type}"))
+        }
     }
 
     private suspend fun handleCredentialResult(credential: Credential) {

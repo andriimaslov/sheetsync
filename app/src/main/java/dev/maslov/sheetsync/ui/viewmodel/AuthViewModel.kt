@@ -1,5 +1,7 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,6 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
     val authState: StateFlow<AuthState> = authRepository.authState
 
     init {
-        // Attempt to restore session on initialization
         restoreSession()
     }
 
@@ -23,7 +24,7 @@ class AuthViewModel @Inject constructor(private val authRepository: AuthReposito
         viewModelScope.launch {
             authRepository.handleSignIn()
                 .onFailure { exception ->
-                    // Error is already set in authState by the repository
+                    Log.d(TAG, "Google Sign-In failed: ${exception.message}")
                 }
         }
     }
