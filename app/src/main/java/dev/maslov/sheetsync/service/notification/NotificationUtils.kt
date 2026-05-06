@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync.service
+package dev.maslov.sheetsync.service.notification
 
 import android.Manifest
 import android.app.NotificationChannel

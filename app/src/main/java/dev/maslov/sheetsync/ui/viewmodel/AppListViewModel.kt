@@ -1,14 +1,12 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.maslov.sheetsync.model.AppModel
-import dev.maslov.sheetsync.service.fetchAppsWithNotifications
+import dev.maslov.sheetsync.service.notification.fetchAppsWithNotifications
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

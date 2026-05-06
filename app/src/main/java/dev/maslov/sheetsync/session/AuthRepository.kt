@@ -1,7 +1,8 @@
-package dev.maslov.sheetsync.service
+package dev.maslov.sheetsync.session
 
 import android.content.Context
 import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -41,7 +42,7 @@ class AuthRepository(private val context: Context, private val googleClientId: S
 
     suspend fun handleSignIn(): Result<Unit> = runCatching {
         val realPackageName = context.packageName
-        Log.d(TAG,"The ID Google sees is: $realPackageName")
+        Log.d(TAG, "The ID Google sees is: $realPackageName")
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(googleClientId)
@@ -58,8 +59,8 @@ class AuthRepository(private val context: Context, private val googleClientId: S
         val credential = result.credential
 
         if (credential is CustomCredential &&
-            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
             handleCredentialResult(googleIdTokenCredential)
             Result.success(Unit)
@@ -126,7 +127,7 @@ class AuthRepository(private val context: Context, private val googleClientId: S
     suspend fun signOut() {
         try {
             credentialManager.clearCredentialState(
-                androidx.credentials.ClearCredentialStateRequest()
+                ClearCredentialStateRequest()
             )
             AuthPreferences.clearAll(context)
             _authState.value = AuthState()

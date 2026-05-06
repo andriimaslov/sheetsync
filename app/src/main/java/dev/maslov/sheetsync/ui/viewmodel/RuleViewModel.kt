@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.service.RuleRepository
+import dev.maslov.sheetsync.service.rules.RuleRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

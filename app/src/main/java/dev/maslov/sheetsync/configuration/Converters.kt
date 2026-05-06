@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync
+package dev.maslov.sheetsync.configuration
 
 import androidx.room.TypeConverter
 import java.time.LocalDateTime

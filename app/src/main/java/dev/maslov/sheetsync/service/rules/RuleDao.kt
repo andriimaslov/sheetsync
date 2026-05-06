@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync.service.dao
+package dev.maslov.sheetsync.service.rules
 
 import androidx.room.Dao
 import androidx.room.Delete

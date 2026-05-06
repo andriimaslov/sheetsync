@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync
+package dev.maslov.sheetsync.configuration
 
 import android.content.Context
 import androidx.room.Room
@@ -7,10 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.maslov.sheetsync.service.AuthRepository
-import dev.maslov.sheetsync.service.RuleRepository
-import dev.maslov.sheetsync.service.SheetSyncDB
-import dev.maslov.sheetsync.service.dao.RuleDao
+import dev.maslov.sheetsync.BuildConfig
+import dev.maslov.sheetsync.configuration.SheetSyncDB
+import dev.maslov.sheetsync.service.rules.RuleDao
+import dev.maslov.sheetsync.service.rules.RuleRepository
+import dev.maslov.sheetsync.session.AuthRepository
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import jakarta.inject.Singleton
 
@@ -34,9 +35,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository {
-        return AuthRepository(context, BuildConfig.OAUTH_CLIENT_ID)
-    }
+    fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository =
+        AuthRepository(context, BuildConfig.OAUTH_CLIENT_ID)
 
     @Provides
     fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)

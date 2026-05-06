@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.maslov.sheetsync.navigation.AppNavGraph
-import dev.maslov.sheetsync.service.createNotificationChannel
+import dev.maslov.sheetsync.service.notification.createNotificationChannel
 import dev.maslov.sheetsync.ui.theme.SheetSyncTheme
 
 @AndroidEntryPoint

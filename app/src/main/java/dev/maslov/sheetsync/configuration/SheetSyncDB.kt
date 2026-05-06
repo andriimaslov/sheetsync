@@ -1,12 +1,11 @@
-package dev.maslov.sheetsync.service
+package dev.maslov.sheetsync.configuration
 
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import dev.maslov.sheetsync.Converters
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.service.dao.RuleDao
+import dev.maslov.sheetsync.service.rules.RuleDao
 
 @Database(
     version = 2,

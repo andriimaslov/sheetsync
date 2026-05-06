@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import dev.maslov.sheetsync.Routes
+import dev.maslov.sheetsync.configuration.Routes
 import dev.maslov.sheetsync.ui.screens.AddRuleScreen
 import dev.maslov.sheetsync.ui.screens.LoginScreen
 import dev.maslov.sheetsync.ui.screens.RuleEditScreen

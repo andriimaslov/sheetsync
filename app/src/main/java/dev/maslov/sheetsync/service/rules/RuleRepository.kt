@@ -1,7 +1,6 @@
-package dev.maslov.sheetsync.service
+package dev.maslov.sheetsync.service.rules
 
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.service.dao.RuleDao
 
 class RuleRepository(private val dao: RuleDao) {
     val rules = dao.getAllRules()

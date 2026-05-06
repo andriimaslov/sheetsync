@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync.service
+package dev.maslov.sheetsync.session
 
 import android.content.Context
 import androidx.datastore.core.DataStore
