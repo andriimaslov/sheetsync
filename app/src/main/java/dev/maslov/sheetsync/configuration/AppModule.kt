@@ -12,7 +12,9 @@ import dev.maslov.sheetsync.service.credentials.ClientCredentialsDao
 import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
 import dev.maslov.sheetsync.service.rules.RuleDao
 import dev.maslov.sheetsync.service.rules.RuleRepository
+import dev.maslov.sheetsync.session.AuthLocalStore
 import dev.maslov.sheetsync.session.AuthRepository
+import dev.maslov.sheetsync.session.GoogleAuthClient
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import jakarta.inject.Singleton
 
@@ -43,8 +45,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository =
-        AuthRepository(context, BuildConfig.OAUTH_CLIENT_ID)
+    fun provideAuthRepository(googleAuthClient: GoogleAuthClient, localStore: AuthLocalStore): AuthRepository =
+        AuthRepository(googleAuthClient, localStore)
+
+    @Provides
+    fun provideGoogleAuthClient(@ApplicationContext applicationContext: Context): GoogleAuthClient =
+        GoogleAuthClient(applicationContext, BuildConfig.OAUTH_CLIENT_ID)
 
     @Provides
     fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)
