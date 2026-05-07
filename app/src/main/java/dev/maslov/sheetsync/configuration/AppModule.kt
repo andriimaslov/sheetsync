@@ -8,7 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.maslov.sheetsync.BuildConfig
-import dev.maslov.sheetsync.configuration.SheetSyncDB
+import dev.maslov.sheetsync.service.credentials.ClientCredentialsDao
+import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
 import dev.maslov.sheetsync.service.rules.RuleDao
 import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.session.AuthRepository
@@ -31,7 +32,14 @@ object AppModule {
     fun provideRuleDao(db: SheetSyncDB): RuleDao = db.ruleDao()
 
     @Provides
+    fun provideClientCredentialsDao(db: SheetSyncDB): ClientCredentialsDao = db.clientCredentialsDao()
+
+    @Provides
     fun provideRepository(dao: RuleDao): RuleRepository = RuleRepository(dao)
+
+    @Provides
+    fun provideClientCredentialsRepository(dao: ClientCredentialsDao): ClientCredentialsRepository =
+        ClientCredentialsRepository(dao)
 
     @Provides
     @Singleton

@@ -1,0 +1,163 @@
+package dev.maslov.sheetsync.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+import dev.maslov.sheetsync.model.ClientCredentialsUiState
+
+@Composable
+fun ClientCredentialsForm(
+    uiState: ClientCredentialsUiState,
+    onClientIdChange: (String) -> Unit,
+    onClientSecretChange: (String) -> Unit,
+    onToggleShowSecret: () -> Unit,
+    onSave: () -> Unit,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        // Header
+        Text(
+            text = "API Credentials",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        // Status indicator
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = if (uiState.areSaved) {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.errorContainer
+                    },
+                    shape = MaterialTheme.shapes.medium
+                )
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (uiState.areSaved) {
+                    Icons.Default.CheckCircle
+                } else {
+                    Icons.Default.Warning
+                },
+                contentDescription = null,
+                tint = if (uiState.areSaved) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.error
+                },
+                modifier = Modifier
+                    .size(20.dp)
+                    .padding(end = 8.dp)
+            )
+            Text(
+                text = if (uiState.areSaved) {
+                    "Credentials are saved"
+                } else {
+                    "Credentials not configured"
+                },
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Client ID Input
+        TextField(
+            value = uiState.clientId,
+            onValueChange = onClientIdChange,
+            label = { Text("Client ID") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            singleLine = true,
+            shape = MaterialTheme.shapes.small
+        )
+
+        // Client Secret Input with toggle
+        TextField(
+            value = uiState.clientSecret,
+            onValueChange = onClientSecretChange,
+            label = { Text("Client Secret") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            singleLine = true,
+            shape = MaterialTheme.shapes.small,
+            visualTransformation = if (uiState.showSecret) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = {
+                IconButton(onClick = onToggleShowSecret, modifier = Modifier.size(24.dp)) {
+                    Text(
+                        text = if (uiState.showSecret) "Hide" else "Show",
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                }
+            }
+        )
+
+        // Error message
+        if (uiState.errorMessage != null) {
+            Text(
+                text = uiState.errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            )
+        }
+
+        // Action Buttons
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onSave,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                enabled = !uiState.isSaving
+            ) {
+                Text(if (uiState.isSaving) "Saving..." else "Save")
+            }
+
+            Button(
+                onClick = onClear,
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isSaving && uiState.areSaved
+            ) {
+                Text("Clear")
+            }
+        }
+    }
+}

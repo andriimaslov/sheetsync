@@ -50,7 +50,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
+import dev.maslov.sheetsync.ui.components.ClientCredentialsForm
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
+import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -59,12 +61,14 @@ import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 fun SettingsScreen(
     onBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    credentialsViewModel: ClientCredentialsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled.collectAsState()
     val authState by authViewModel.authState.collectAsState()
+    val credentialsUiState by credentialsViewModel.uiState.collectAsState()
 
     // Refresh permission status when screen resumes/becomes visible
     LaunchedEffect(lifecycleOwner) {
@@ -273,6 +277,19 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Client Credentials Section
+            ClientCredentialsForm(
+                uiState = credentialsUiState,
+                onClientIdChange = { credentialsViewModel.updateClientId(it) },
+                onClientSecretChange = { credentialsViewModel.updateClientSecret(it) },
+                onToggleShowSecret = { credentialsViewModel.toggleShowSecret() },
+                onSave = { credentialsViewModel.saveCredentials() },
+                onClear = { credentialsViewModel.clearCredentials() },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
