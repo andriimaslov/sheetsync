@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-
 @HiltViewModel
 class ClientCredentialsViewModel @Inject constructor(private val repository: ClientCredentialsRepository) :
     ViewModel() {
@@ -100,7 +99,12 @@ class ClientCredentialsViewModel @Inject constructor(private val repository: Cli
                     areSaved = true,
                     errorMessage = null
                 )
-                Log.d(TAG, "Credentials saved successfully: clientId=${clientId.take(10)}..., clientSecret=${clientSecret.take(10)}...")
+                Log.d(
+                    TAG,
+                    "Credentials saved successfully: clientId=${clientId.take(
+                        10
+                    )}..., clientSecret=${clientSecret.take(10)}..."
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,

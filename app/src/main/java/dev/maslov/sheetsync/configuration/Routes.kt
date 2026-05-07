@@ -3,7 +3,6 @@ package dev.maslov.sheetsync.configuration
 import java.util.UUID
 
 sealed class Routes(val value: String) {
-    object Login : Routes("login")
 
     object RuleList : Routes("rules")
 
@@ -14,4 +13,6 @@ sealed class Routes(val value: String) {
     object RuleEdit : Routes("rule_edit/{ruleId}") {
         fun createRoute(ruleId: UUID) = "rule_edit/$ruleId"
     }
+
+    object Onboarding : Routes("onboarding")
 }

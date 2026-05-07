@@ -1,7 +1,8 @@
 package dev.maslov.sheetsync.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,29 +10,53 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.maslov.sheetsync.configuration.Routes
 import dev.maslov.sheetsync.ui.screens.AddRuleScreen
-import dev.maslov.sheetsync.ui.screens.LoginScreen
+import dev.maslov.sheetsync.ui.screens.OnboardingScreen
 import dev.maslov.sheetsync.ui.screens.RuleEditScreen
 import dev.maslov.sheetsync.ui.screens.RuleListScreen
 import dev.maslov.sheetsync.ui.screens.SearchScreen
 import dev.maslov.sheetsync.ui.screens.SettingsScreen
+import dev.maslov.sheetsync.ui.screens.SplashScreen
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
+import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
+import dev.maslov.sheetsync.ui.viewmodel.OnboardingViewModel
 import java.util.UUID
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
+    val onboardingViewModel: OnboardingViewModel = hiltViewModel()
+    val credentialsViewModel: ClientCredentialsViewModel = hiltViewModel()
 
-    // Determine start destination based on login state
-    val startDestination = if (authViewModel.isLoggedIn()) Routes.RuleList.value else Routes.Login.value
+    val isFirstLaunch = onboardingViewModel.isFirstLaunch.collectAsState().value
+    if (isFirstLaunch == null) {
+        SplashScreen()
+        return
+    }
 
+    val startDestination =
+        if (isFirstLaunch) {
+            Routes.Onboarding.value
+        } else {
+            Routes.RuleList.value
+        }
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Routes.Login.value) {
-            LoginScreen(
-                onLoginSuccess = { navController.navigate(Routes.RuleList.value) }
+        composable(Routes.Onboarding.value) {
+            OnboardingScreen(
+                onboardingViewModel = onboardingViewModel,
+                authViewModel = authViewModel,
+                credentialsViewModel = credentialsViewModel,
+                onFinish = {
+                    onboardingViewModel.finishOnboarding()
+                    navController.navigate(Routes.RuleList.value) {
+                        popUpTo(Routes.Onboarding.value) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
 
