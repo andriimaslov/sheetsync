@@ -7,7 +7,6 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Scope
-import kotlin.getValue
 import kotlinx.coroutines.tasks.await
 
 class GoogleSheetsAuthorizationManager(private val context: Context, private val serverClientId: String) {

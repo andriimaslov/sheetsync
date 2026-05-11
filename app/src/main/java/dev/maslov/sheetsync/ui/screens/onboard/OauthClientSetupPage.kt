@@ -1,7 +1,5 @@
 package dev.maslov.sheetsync.ui.screens.onboard
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.maslov.sheetsync.ui.components.ClientCredentialsForm
@@ -45,10 +42,14 @@ fun OauthClientSetupPage(
             onClientIdChange = { credentialsViewModel.updateClientId(it) },
             onClientSecretChange = { credentialsViewModel.updateClientSecret(it) },
             onToggleShowSecret = { credentialsViewModel.toggleShowSecret() },
-            onSave = { credentialsViewModel.saveCredentials()
-                onSetupCompleted()},
-            onClear = { credentialsViewModel.clearCredentials()
-                onSetupReset()},
+            onSave = {
+                credentialsViewModel.saveCredentials()
+                onSetupCompleted()
+            },
+            onClear = {
+                credentialsViewModel.clearCredentials()
+                onSetupReset()
+            },
             modifier = Modifier.fillMaxWidth()
         )
     }

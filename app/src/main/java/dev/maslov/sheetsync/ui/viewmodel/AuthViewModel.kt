@@ -152,7 +152,9 @@ class AuthViewModel @Inject constructor(
             tokenRepository.saveToken(response.accessToken, response.refreshToken)
             _authState.update { it.copy(isLoading = false, error = null, isGoogleAPIAuthorized = true) }
         } catch (e: Exception) {
-            _authState.update { it.copy(isLoading = false, error = "Token exchange failed: ${e.message}", isGoogleAPIAuthorized = false) }
+            _authState.update {
+                it.copy(isLoading = false, error = "Token exchange failed: ${e.message}", isGoogleAPIAuthorized = false)
+            }
         }
     }
 }

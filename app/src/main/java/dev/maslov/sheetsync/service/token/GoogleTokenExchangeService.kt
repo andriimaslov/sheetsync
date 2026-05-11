@@ -3,7 +3,6 @@ package dev.maslov.sheetsync.service.token
 import com.google.gson.Gson
 import dev.maslov.sheetsync.exception.TokenRefreshException
 import dev.maslov.sheetsync.model.ClientCredentials
-import dev.maslov.sheetsync.model.Token
 import dev.maslov.sheetsync.model.TokenResponse
 import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
 import kotlinx.coroutines.Dispatchers

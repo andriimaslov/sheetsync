@@ -1,9 +1,6 @@
 package dev.maslov.sheetsync.service.credentials
 
-import androidx.compose.runtime.collectAsState
 import dev.maslov.sheetsync.model.ClientCredentials
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ClientCredentialsRepository(private val dao: ClientCredentialsDao) {
     val credentialsFlow = dao.getCredentials()

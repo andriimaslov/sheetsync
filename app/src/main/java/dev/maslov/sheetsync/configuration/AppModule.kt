@@ -8,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.maslov.sheetsync.BuildConfig
-import dev.maslov.sheetsync.model.Token
 import dev.maslov.sheetsync.service.credentials.ClientCredentialsDao
 import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
 import dev.maslov.sheetsync.service.rules.RuleDao
@@ -22,7 +21,6 @@ import dev.maslov.sheetsync.session.AuthRepository
 import dev.maslov.sheetsync.session.GoogleAuthClient
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import jakarta.inject.Singleton
-import kotlinx.coroutines.flow.collect
 
 @Module
 @InstallIn(SingletonComponent::class)

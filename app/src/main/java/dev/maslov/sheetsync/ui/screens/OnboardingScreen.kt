@@ -41,7 +41,6 @@ fun OnboardingScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.weight(1f)

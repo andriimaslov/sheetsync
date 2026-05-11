@@ -30,14 +30,8 @@ import coil.compose.AsyncImage
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SignInWithGooglePage(
-    authViewModel: AuthViewModel,
-    onLoginSuccess: () -> Unit,
-    onLogoutSuccess: () -> Unit
-) {
-
+fun SignInWithGooglePage(authViewModel: AuthViewModel, onLoginSuccess: () -> Unit, onLogoutSuccess: () -> Unit) {
     val authState by authViewModel.authState.collectAsState()
-
 
     Column(
         modifier = Modifier
@@ -55,7 +49,6 @@ fun SignInWithGooglePage(
         Text("Some intro text here")
 
         Spacer(modifier = Modifier.height(32.dp))
-
 
         if (authState.isLoggedIn && authState.user != null) {
             onLoginSuccess()
@@ -122,8 +115,10 @@ fun SignInWithGooglePage(
                 }
 
                 Button(
-                    onClick = { authViewModel.logout()
-                              onLogoutSuccess() },
+                    onClick = {
+                        authViewModel.logout()
+                        onLogoutSuccess()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp)
@@ -135,7 +130,6 @@ fun SignInWithGooglePage(
             Button(
                 onClick = {
                     authViewModel.signInWithGoogle()
-
                 }
             ) {
                 Text("Login with Google")
@@ -158,7 +152,5 @@ fun SignInWithGooglePage(
 //                )
 //            }
         }
-
-
     }
 }

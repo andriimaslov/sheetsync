@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor(
-    private val preferences: AppPreferences
-) : ViewModel() {
+class OnboardingViewModel @Inject constructor(private val preferences: AppPreferences) : ViewModel() {
 
     val isFirstLaunch: StateFlow<Boolean?> =
         preferences.isFirstLaunchFlow
