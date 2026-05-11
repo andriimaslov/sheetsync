@@ -1,10 +1,9 @@
 package dev.maslov.sheetsync.ui.screens
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.background
@@ -41,11 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -69,6 +66,22 @@ fun SettingsScreen(
     val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled.collectAsState()
     val authState by authViewModel.authState.collectAsState()
     val credentialsUiState by credentialsViewModel.uiState.collectAsState()
+
+    // Launcher for OAuth resolution popup
+    val oauthLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        authViewModel.onSheetsResolutionResult(result.data)
+    }
+
+    // Collect OAuth resolution trigger and launch the popup
+    LaunchedEffect(Unit) {
+        authViewModel.resolutionTrigger.collect { intentSender ->
+            oauthLauncher.launch(
+                IntentSenderRequest.Builder(intentSender).build()
+            )
+        }
+    }
 
     // Refresh permission status when screen resumes/becomes visible
     LaunchedEffect(lifecycleOwner) {
@@ -290,6 +303,17 @@ fun SettingsScreen(
                 onClear = { credentialsViewModel.clearCredentials() },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Button(
+                    onClick = {
+                        authViewModel.beginSheetsAuthorization()
+                    },
+                    enabled = !authState.isLoading
+                ) {
+                    Text(if (authState.isLoading) "Authorizing..." else "Fire auth")
+                }
+            }
         }
     }
 }

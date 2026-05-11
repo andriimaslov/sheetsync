@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.google.id)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.security.crypto)
+    implementation(libs.play.services.auth)
+    implementation(libs.google.gson)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 
