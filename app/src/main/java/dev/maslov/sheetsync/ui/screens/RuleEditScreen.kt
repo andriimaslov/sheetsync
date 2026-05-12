@@ -17,9 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.maslov.sheetsync.model.DriveUiState
 import dev.maslov.sheetsync.ui.components.RuleEditForm
@@ -35,12 +32,12 @@ import java.util.UUID
 fun RuleEditScreen(
     ruleId: UUID,
     onBack: () -> Unit,
-    viewModel: RuleViewModel = hiltViewModel(),
-    appListViewModel: AppListViewModel = hiltViewModel(),
-    sheetsViewModel: SheetsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel(),
+    ruleViewModel: RuleViewModel,
+    appListViewModel: AppListViewModel,
+    sheetsViewModel: SheetsViewModel,
+    authViewModel: AuthViewModel
 ) {
-    val rules by viewModel.rules.collectAsState()
+    val rules by ruleViewModel.rules.collectAsState()
     val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
     val driveUiState by sheetsViewModel.driveUiState.collectAsState()
     val rule = rules.find { it.id == ruleId }
@@ -70,9 +67,7 @@ fun RuleEditScreen(
                 IntentSenderRequest.Builder(intentSender).build()
             )
         }
-
     }
-
 
     Scaffold(
         topBar = {
@@ -90,7 +85,7 @@ fun RuleEditScreen(
             RuleEditForm(
                 rule = rule,
                 onSave = { updatedRule ->
-                    viewModel.editRule(updatedRule)
+                    ruleViewModel.editRule(updatedRule)
                     onBack()
                 },
                 appList = apps,
@@ -98,7 +93,7 @@ fun RuleEditScreen(
                 isLoadingSheets = isLoadingSheets,
                 loadingSheetsError = loadingSheetsError,
                 onSelectSheet = { /* No-op for edit form */ },
-                onRefreshSheets = { sheetsViewModel.refreshSheetList() },
+                onRefreshSheets = { sheetsViewModel.refreshSheetList(forceUpdate = true) },
                 modifier = Modifier.padding(padding)
             )
         } else {

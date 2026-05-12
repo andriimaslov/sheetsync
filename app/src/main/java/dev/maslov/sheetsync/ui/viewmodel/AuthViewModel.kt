@@ -12,6 +12,7 @@ import dev.maslov.sheetsync.service.token.GoogleSheetsAuthorizationManager
 import dev.maslov.sheetsync.service.token.GoogleTokenExchangeService
 import dev.maslov.sheetsync.service.token.TokenAuthResult
 import dev.maslov.sheetsync.session.AuthRepository
+import dev.maslov.sheetsync.session.AuthRequirementManager
 import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -26,7 +27,8 @@ class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sheetsManager: GoogleSheetsAuthorizationManager,
     private val tokenService: GoogleTokenExchangeService,
-    private val oAuthCredManager: OAuthCredManager
+    private val oAuthCredManager: OAuthCredManager,
+    private val authRequirementManager: AuthRequirementManager
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow(AuthState())
@@ -44,6 +46,18 @@ class AuthViewModel @Inject constructor(
 
     init {
         restoreSession()
+        observeAuthRequirement()
+    }
+
+    private fun observeAuthRequirement() {
+        viewModelScope.launch {
+            authRequirementManager.authRequired.collect { isRequired ->
+                if (isRequired) {
+                    Log.d(TAG, "Auth requirement detected, initiating authorization")
+                    beginSheetsAuthorization()
+                }
+            }
+        }
     }
 
     fun signInWithGoogle() {
@@ -148,6 +162,7 @@ class AuthViewModel @Inject constructor(
             )
 
             oAuthCredManager.saveToken(response.accessToken, response.refreshToken, response.expiresIn)
+            authRequirementManager.resetAuthRequirement()
             _authState.update { it.copy(isLoading = false, error = null, isGoogleAPIAuthorized = true) }
         } catch (e: Exception) {
             _authState.update {

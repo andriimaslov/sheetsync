@@ -22,8 +22,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.maslov.sheetsync.model.DriveUiState
 import dev.maslov.sheetsync.ui.components.RuleAddForm
@@ -37,10 +35,10 @@ import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
 @Composable
 fun AddRuleScreen(
     onBack: () -> Unit,
-    viewModel: RuleViewModel = hiltViewModel(),
-    appListViewModel: AppListViewModel = hiltViewModel(),
-    sheetsViewModel: SheetsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel(),
+    ruleViewModel: RuleViewModel,
+    appListViewModel: AppListViewModel,
+    sheetsViewModel: SheetsViewModel,
+    authViewModel: AuthViewModel
 ) {
     val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
     val driveUiState by sheetsViewModel.driveUiState.collectAsState()
@@ -92,7 +90,7 @@ fun AddRuleScreen(
         ) {
             RuleAddForm(
                 onSave = { newRule ->
-                    viewModel.addRule(newRule)
+                    ruleViewModel.addRule(newRule)
                     onBack()
                 },
                 appList = apps,
@@ -100,7 +98,7 @@ fun AddRuleScreen(
                 isLoadingSheets = isLoadingSheets,
                 loadingSheetsError = loadingSheetsError,
                 onSelectSheet = { /* No-op for add form */ },
-                onRefreshSheets = { sheetsViewModel.refreshSheetList() },
+                onRefreshSheets = { sheetsViewModel.refreshSheetList(forceUpdate = true) },
                 modifier = Modifier.padding(padding)
             )
         }

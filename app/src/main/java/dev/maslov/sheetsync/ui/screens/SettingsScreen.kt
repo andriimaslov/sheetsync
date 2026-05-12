@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -44,7 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
@@ -58,13 +56,13 @@ import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel(),
-    credentialsViewModel: ClientCredentialsViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel,
+    authViewModel: AuthViewModel,
+    credentialsViewModel: ClientCredentialsViewModel
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled.collectAsState()
+    val isNotificationListenerEnabled by settingsViewModel.isNotificationListenerEnabled.collectAsState()
     val authState by authViewModel.authState.collectAsState()
     val credentialsUiState by credentialsViewModel.uiState.collectAsState()
 
@@ -89,7 +87,7 @@ fun SettingsScreen(
         lifecycleOwner.lifecycle.addObserver(object : androidx.lifecycle.LifecycleEventObserver {
             override fun onStateChanged(source: androidx.lifecycle.LifecycleOwner, event: Lifecycle.Event) {
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    viewModel.refreshNotificationPermissionStatus()
+                    settingsViewModel.refreshNotificationPermissionStatus()
                 }
             }
         })
@@ -279,9 +277,9 @@ fun SettingsScreen(
                 if (!isNotificationListenerEnabled) {
                     Button(
                         onClick = {
-                            val intent = viewModel.getNotificationSettingsIntent()
+                            val intent = settingsViewModel.getNotificationSettingsIntent()
                             context.startActivity(intent)
-                            viewModel.refreshNotificationPermissionStatus()
+                            settingsViewModel.refreshNotificationPermissionStatus()
                         },
                         modifier = Modifier
                             .padding(top = 12.dp)

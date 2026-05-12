@@ -16,9 +16,13 @@ import dev.maslov.sheetsync.ui.screens.RuleListScreen
 import dev.maslov.sheetsync.ui.screens.SearchScreen
 import dev.maslov.sheetsync.ui.screens.SettingsScreen
 import dev.maslov.sheetsync.ui.screens.SplashScreen
+import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.OnboardingViewModel
+import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
+import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
+import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
 import java.util.UUID
 
 @Composable
@@ -27,6 +31,10 @@ fun AppNavGraph() {
     val authViewModel: AuthViewModel = hiltViewModel()
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val credentialsViewModel: ClientCredentialsViewModel = hiltViewModel()
+    val ruleViewModel: RuleViewModel = hiltViewModel()
+    val appListViewModel: AppListViewModel = hiltViewModel()
+    val sheetsViewModel: SheetsViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
 
     val isFirstLaunch = onboardingViewModel.isFirstLaunch.collectAsState().value
     if (isFirstLaunch == null) {
@@ -67,19 +75,28 @@ fun AppNavGraph() {
                     navController.navigate(Routes.AddRule.value)
                 },
                 onSearch = { navController.navigate("search") },
-                onEditRule = { ruleId -> navController.navigate(Routes.RuleEdit.createRoute(ruleId)) }
+                onEditRule = { ruleId -> navController.navigate(Routes.RuleEdit.createRoute(ruleId)) },
+                ruleViewModel = ruleViewModel,
+                appListViewModel = appListViewModel
             )
         }
 
         composable(Routes.Settings.value) {
             SettingsScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                settingsViewModel = settingsViewModel,
+                authViewModel = authViewModel,
+                credentialsViewModel = credentialsViewModel
             )
         }
 
         composable(Routes.AddRule.value) {
             AddRuleScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                ruleViewModel = ruleViewModel,
+                appListViewModel = appListViewModel,
+                sheetsViewModel = sheetsViewModel,
+                authViewModel = authViewModel
             )
         }
 
@@ -95,7 +112,11 @@ fun AppNavGraph() {
 
             RuleEditScreen(
                 ruleId = UUID.fromString(rule),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                ruleViewModel = ruleViewModel,
+                appListViewModel = appListViewModel,
+                sheetsViewModel = sheetsViewModel,
+                authViewModel = authViewModel
             )
         }
 
