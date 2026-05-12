@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.spotless)
     alias(libs.plugins.google.secrets)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -73,6 +74,13 @@ dependencies {
     implementation(libs.google.gson)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.tink)
+    implementation(libs.tink.android)
+
+    // Kotlinx Serialization
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -6,24 +6,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.ClientCredentialsUiState
-import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
+import dev.maslov.sheetsync.model.OAuthCreds
+import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ClientCredentialsViewModel @Inject constructor(private val repository: ClientCredentialsRepository) :
-    ViewModel() {
+class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManager: OAuthCredManager) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientCredentialsUiState())
     val uiState: StateFlow<ClientCredentialsUiState> = _uiState.asStateFlow()
 
-    val credentials =
-        repository.credentialsFlow.stateIn(
+    val credentials: StateFlow<OAuthCreds?> = oAuthCredManager.credentialsFlow
+        .map { it.oAuthCreds }
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
@@ -93,7 +95,7 @@ class ClientCredentialsViewModel @Inject constructor(private val repository: Cli
                     return@launch
                 }
 
-                repository.saveCredentials(clientId, clientSecret)
+                oAuthCredManager.saveCredentials(clientId, clientSecret)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     areSaved = true,
@@ -117,7 +119,7 @@ class ClientCredentialsViewModel @Inject constructor(private val repository: Cli
     fun clearCredentials() {
         viewModelScope.launch {
             try {
-                repository.clearCredentials()
+                oAuthCredManager.clearCredentials()
                 _uiState.value = ClientCredentialsUiState(showSecret = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(

@@ -11,15 +11,13 @@ import dev.maslov.sheetsync.model.AuthState
 import dev.maslov.sheetsync.service.token.GoogleSheetsAuthorizationManager
 import dev.maslov.sheetsync.service.token.GoogleTokenExchangeService
 import dev.maslov.sheetsync.service.token.TokenAuthResult
-import dev.maslov.sheetsync.service.token.TokenRepository
 import dev.maslov.sheetsync.session.AuthRepository
+import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -28,7 +26,7 @@ class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sheetsManager: GoogleSheetsAuthorizationManager,
     private val tokenService: GoogleTokenExchangeService,
-    private val tokenRepository: TokenRepository
+    private val oAuthCredManager: OAuthCredManager
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow(AuthState())
@@ -38,11 +36,11 @@ class AuthViewModel @Inject constructor(
     private val _resolutionTrigger = Channel<IntentSender>(Channel.BUFFERED)
     val resolutionTrigger = _resolutionTrigger.receiveAsFlow()
 
-    private val token = tokenRepository.tokenFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = null
-    )
+//    private val token = tokenRepository.tokenFlow.stateIn(
+//        scope = viewModelScope,
+//        started = SharingStarted.WhileSubscribed(5000),
+//        initialValue = null
+//    )
 
     init {
         restoreSession()
@@ -149,7 +147,7 @@ class AuthViewModel @Inject constructor(
                 "Token exchange successful: accessToken=${response.accessToken}, refreshToken=${response.refreshToken}"
             )
 
-            tokenRepository.saveToken(response.accessToken, response.refreshToken)
+            oAuthCredManager.saveToken(response.accessToken, response.refreshToken, response.expiresIn)
             _authState.update { it.copy(isLoading = false, error = null, isGoogleAPIAuthorized = true) }
         } catch (e: Exception) {
             _authState.update {

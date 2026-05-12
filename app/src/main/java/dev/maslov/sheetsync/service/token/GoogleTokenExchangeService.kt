@@ -2,9 +2,9 @@ package dev.maslov.sheetsync.service.token
 
 import com.google.gson.Gson
 import dev.maslov.sheetsync.exception.TokenRefreshException
-import dev.maslov.sheetsync.model.ClientCredentials
+import dev.maslov.sheetsync.model.OAuthCreds
 import dev.maslov.sheetsync.model.TokenResponse
-import dev.maslov.sheetsync.service.credentials.ClientCredentialsRepository
+import dev.maslov.sheetsync.session.OAuthCredManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -12,13 +12,13 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-class GoogleTokenExchangeService(private val clientCredentialRepository: ClientCredentialsRepository) {
+class GoogleTokenExchangeService(private val oAuthCredManager: OAuthCredManager) {
 
     private val client = OkHttpClient()
     private val gson = Gson()
 
-    private suspend fun getCredentials(): ClientCredentials = clientCredentialRepository.credentialsFlow.first()
-        ?: throw IllegalStateException("No credentials found in repository")
+    private suspend fun getCredentials(): OAuthCreds = oAuthCredManager.credentialsFlow.first().oAuthCreds
+        ?: throw IllegalStateException("Client credentials not found")
 
     suspend fun exchangeAuthCode(code: String): TokenResponse = withContext(Dispatchers.IO) {
         val credentials = getCredentials()
