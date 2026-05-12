@@ -8,9 +8,9 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.BankTransaction
+import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
 
 val notificationTextRegex = """([+-][\d\s]+)\S\s+(.*?)(?=\s+\*|\n|\d{2}:\d{2})""".toRegex()
 

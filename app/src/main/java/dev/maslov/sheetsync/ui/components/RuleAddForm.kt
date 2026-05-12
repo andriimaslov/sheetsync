@@ -11,8 +11,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -77,7 +79,7 @@ fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modif
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(sheetListExpanded)
                 },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
             )
 
             ExposedDropdownMenu(
@@ -107,9 +109,7 @@ fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modif
                 label = { Text("Apps with Notifications On") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = appListExpanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
+                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
             )
 
             // The actual menu that pops up
@@ -147,7 +147,7 @@ fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modif
             onCheckedChange = { isActive = it }
         )
 
-        Divider()
+        HorizontalDivider()
 
         Spacer(modifier = Modifier.weight(1f))
 
