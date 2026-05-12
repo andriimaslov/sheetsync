@@ -10,13 +10,14 @@ import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.rules.RuleDao
 
 @Database(
-    version = 5,
+    version = 6,
     entities = [Rule::class],
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4),
-        AutoMigration(from = 4, to = 5, spec = SheetSyncDB.DeleteTokenAndCredentialTablesSpec::class)
+        AutoMigration(from = 4, to = 5, spec = SheetSyncDB.DeleteTokenAndCredentialTablesSpec::class),
+        AutoMigration(from = 5, to = 6)
     ],
     exportSchema = true
 )

@@ -72,6 +72,11 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.play.services.auth)
     implementation(libs.google.gson)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 

@@ -29,20 +29,27 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
+import dev.maslov.sheetsync.model.SheetMetadata
 import java.time.LocalDateTime
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modifier = Modifier) {
+fun RuleAddForm(
+    onSave: (Rule) -> Unit,
+    appList: List<AppModel>,
+    availableSheets: List<SheetMetadata>,
+    isLoadingSheets: Boolean,
+    loadingSheetsError: String?,
+    onSelectSheet: (SheetMetadata) -> Unit,
+    onRefreshSheets: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var sheetId by remember { mutableStateOf("") }
+    var selectedSheet by remember { mutableStateOf<SheetMetadata?>(null) }
     var isActive by remember { mutableStateOf(false) }
 
-    // sheet dropdown state
-    var sheetListExpanded by remember { mutableStateOf(false) }
-    val sheetOptions = listOf("sheet_123", "sheet_456", "sheet_789")
     // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -67,36 +74,18 @@ fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modif
             modifier = Modifier.fillMaxWidth()
         )
 
-        ExposedDropdownMenuBox(
-            expanded = sheetListExpanded,
-            onExpandedChange = { sheetListExpanded = !sheetListExpanded }
-        ) {
-            OutlinedTextField(
-                value = sheetId,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Sheet") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(sheetListExpanded)
-                },
-                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
-            )
+        SheetSelector(
+            sheetList = availableSheets,
+            selectedSheet = selectedSheet,
+            isLoading = isLoadingSheets,
+            errorMessage = loadingSheetsError,
+            onSelect = { sheet ->
+                selectedSheet = sheet
+                onSelectSheet(sheet)
+            },
+            onRefresh = onRefreshSheets
+        )
 
-            ExposedDropdownMenu(
-                expanded = sheetListExpanded,
-                onDismissRequest = { sheetListExpanded = false }
-            ) {
-                sheetOptions.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            sheetId = option
-                            sheetListExpanded = false
-                        }
-                    )
-                }
-            }
-        }
         ExposedDropdownMenuBox(
             expanded = appListExpanded,
             onExpandedChange = { appListExpanded = !appListExpanded }
@@ -159,7 +148,8 @@ fun RuleAddForm(onSave: (Rule) -> Unit, appList: List<AppModel>, modifier: Modif
                     description = description,
                     isActive = isActive,
                     createdAt = LocalDateTime.now(),
-                    sheetId = "sheet_new",
+                    sheetId = selectedSheet?.id ?: "none",
+                    sheetName = selectedSheet?.name ?: "",
                     lastRunStatus = "Init",
                     lastRunAt = LocalDateTime.now(),
                     appId = selectedApp?.packageName ?: "none"

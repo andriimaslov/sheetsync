@@ -24,6 +24,10 @@ class OAuthCredManager @Inject constructor(private val dataStore: DataStore<OAut
     // Single-shot read for network interceptors
     suspend fun getCredentialsSync(): OAuthConfiguration = dataStore.data.first()
 
+    suspend fun getTokenSync(): OAuthToken? = dataStore.data.first().oAuthToken
+
+    fun isTokenExpired(token: OAuthToken): Boolean = token.expiresAtMillis < System.currentTimeMillis()
+
     suspend fun saveCredentials(clientId: String, clientSecret: String) {
         dataStore.updateData { current ->
             current.copy(

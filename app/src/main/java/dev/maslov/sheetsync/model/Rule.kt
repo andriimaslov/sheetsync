@@ -14,6 +14,8 @@ data class Rule(
     val isActive: Boolean,
     val createdAt: LocalDateTime,
     val sheetId: String,
+    @ColumnInfo(defaultValue = "")
+    val sheetName: String,
     val lastRunStatus: String,
     val lastRunAt: LocalDateTime,
     @ColumnInfo(defaultValue = "none")
