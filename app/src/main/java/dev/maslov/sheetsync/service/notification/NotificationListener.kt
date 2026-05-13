@@ -6,8 +6,11 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
+import dev.maslov.sheetsync.service.googleapis.SheetService
+import dev.maslov.sheetsync.service.rules.RuleRepository
+import dev.maslov.sheetsync.service.token.AuthorizationManager
 import jakarta.inject.Inject
+import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -17,7 +20,13 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
     @Inject
-    lateinit var ruleViewModel: RuleViewModel
+    lateinit var repository: RuleRepository
+
+    @Inject
+    lateinit var sheetService: SheetService
+
+    @Inject
+    lateinit var authorizationManager: AuthorizationManager
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var activeRules = listOf<Rule>()
@@ -31,7 +40,7 @@ class NotificationListener : NotificationListenerService() {
         Log.i(TAG, "NotificationListener service created")
         // Collect active rules in the background
         scope.launch {
-            ruleViewModel.rules.collect { rules ->
+            repository.rules.collect { rules ->
                 activeRules = rules.filter { it.isActive }
                 Log.d(TAG, "Active rules updated: ${activeRules.size} rules loaded")
             }
@@ -58,6 +67,23 @@ class NotificationListener : NotificationListenerService() {
                     TAG,
                     "✓ Parsed notification: amount: ${bankTransaction.amount}, description: ${bankTransaction.description}"
                 )
+
+                val account = if (packageName.contains("business")) "fop" else "fiz"
+                val category = if (bankTransaction.description.contains(
+                        "Переказ"
+                    )
+                ) {
+                    "transfer from card"
+                } else {
+                    "online purchase"
+                }
+                val values =
+                    listOf(account, LocalDate.now().toString(), category, bankTransaction.description, bankTransaction.amount)
+
+                scope.launch {
+                    val accessToken = authorizationManager.validateAndRefreshToken()
+                    sheetService.appendRow(accessToken!!, matchedRule.sheetId, "Sheet1", values)
+                }
             } else {
                 Log.d(TAG, "✗ Failed to parse bank transaction from notification text")
             }

@@ -10,10 +10,10 @@ import dagger.hilt.components.SingletonComponent
 import dev.maslov.sheetsync.BuildConfig
 import dev.maslov.sheetsync.service.rules.RuleDao
 import dev.maslov.sheetsync.service.rules.RuleRepository
-import dev.maslov.sheetsync.service.token.GoogleSheetsAuthorizationManager
-import dev.maslov.sheetsync.service.token.GoogleTokenExchangeService
+import dev.maslov.sheetsync.service.token.AuthorizationManager
 import dev.maslov.sheetsync.session.AuthLocalStore
 import dev.maslov.sheetsync.session.AuthRepository
+import dev.maslov.sheetsync.session.AuthRequirementManager
 import dev.maslov.sheetsync.session.GoogleAuthClient
 import dev.maslov.sheetsync.session.OAuthCredManager
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
@@ -50,10 +50,9 @@ object AppModule {
     fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)
 
     @Provides
-    fun provideGoogleSheetsAuthorizationManager(@ApplicationContext context: Context) =
-        GoogleSheetsAuthorizationManager(context, BuildConfig.OAUTH_CLIENT_ID)
-
-    @Provides
-    fun provideGoogleTokenExchangeService(oAuthCredManager: OAuthCredManager) =
-        GoogleTokenExchangeService(oAuthCredManager)
+    fun provideGoogleSheetsAuthorizationManager(
+        @ApplicationContext context: Context,
+        oAuthCredManager: OAuthCredManager,
+        authRequirementManager: AuthRequirementManager
+    ) = AuthorizationManager(context, BuildConfig.OAUTH_CLIENT_ID, oAuthCredManager, authRequirementManager)
 }

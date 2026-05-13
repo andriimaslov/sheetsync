@@ -1,8 +1,8 @@
 package dev.maslov.sheetsync.service.googleapis
 
 import android.util.Log
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import dev.maslov.sheetsync.model.AppendResponse
+import dev.maslov.sheetsync.model.SheetsValueRange
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
@@ -12,15 +12,19 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface GoogleSheetsApi {
-    @POST("https://sheets.googleapis.com/v4/spreadsheets/{spreadsheetId}/values/{range}:append")
-    suspend fun appendValues(
+    @POST("v4/spreadsheets/{spreadsheetId}/values/{range}:append")
+    suspend fun appendRow(
         @Header("Authorization") authorization: String,
-        @Query("valueInputOption") valueInputOption: String,
-        @Body body: JsonObject
-    ): JsonObject
+        @Path("spreadsheetId") spreadsheetId: String,
+        @Path("range") range: String,
+        @Body body: SheetsValueRange,
+        @Query("valueInputOption") valueInputOption: String = "USER_ENTERED",
+        @Query("insertDataOption") insertDataOption: String = "INSERT_ROWS"
+    ): retrofit2.Response<AppendResponse>
 }
 
 @Singleton
@@ -44,73 +48,59 @@ class SheetService @Inject constructor() {
         retrofit.create(GoogleSheetsApi::class.java)
     }
 
-    suspend fun appendToSheet(
+    /**
+     * Appends a single row of data to the end of the specified sheet.
+     * This function always appends to the bottom of the sheet, regardless of existing data.
+     *
+     * @param accessToken OAuth 2.0 access token for authentication
+     * @param spreadsheetId The ID of the Google Sheets spreadsheet
+     * @param range The name of the sheet (e.g., "Sheet1"). Defaults to "Sheet1"
+     * @param rowData List of values to append as a single row
+     * @return Result containing AppendResponse on success, or exception on failure
+     */
+    suspend fun appendRow(
         accessToken: String,
         spreadsheetId: String,
-        range: String = "Sheet1!A1",
-        values: List<String>
-    ): Result<JsonObject> = runCatching {
-        val body = JsonObject().apply {
-            add(
-                "values",
-                JsonArray().apply {
-                    add(
-                        JsonArray().apply {
-                            values.forEach { add(it) }
-                        }
-                    )
-                }
-            )
-        }
+        range: String,
+        rowData: List<Any>
+    ): Result<AppendResponse> = runCatching {
+        Log.d(TAG, "Appending row with ${rowData.size} columns to sheet '$range' in spreadsheet $spreadsheetId")
 
-        val response = api.appendValues(
-            authorization = "Bearer $accessToken",
-            valueInputOption = "RAW",
-            body = body
+        // Validate input
+        require(rowData.isNotEmpty()) { "Row data cannot be empty" }
+        require(accessToken.isNotBlank()) { "Access token cannot be blank" }
+        require(spreadsheetId.isNotBlank()) { "Spreadsheet ID cannot be blank" }
+
+        val valueRange = SheetsValueRange(
+            values = listOf(rowData)
         )
 
-        Log.d(TAG, "Appended ${values.size} values to sheet $spreadsheetId at range $range")
-        response
-    }.onFailure { exception ->
-        Log.e(TAG, "Error appending to sheet: ${exception.message}", exception)
-    }
-
-    suspend fun appendToSheetAsRow(
-        accessToken: String,
-        spreadsheetId: String,
-        range: String = "Sheet1!A1",
-        values: List<Any>
-    ): Result<JsonObject> = runCatching {
-        val body = JsonObject().apply {
-            add(
-                "values",
-                JsonArray().apply {
-                    add(
-                        JsonArray().apply {
-                            values.forEach { value ->
-                                when (value) {
-                                    is String -> add(value)
-                                    is Number -> add(value)
-                                    is Boolean -> add(value)
-                                    else -> add(value.toString())
-                                }
-                            }
-                        }
-                    )
-                }
-            )
-        }
-
-        val response = api.appendValues(
+        val response = api.appendRow(
             authorization = "Bearer $accessToken",
-            valueInputOption = "RAW",
-            body = body
+            spreadsheetId = spreadsheetId,
+            range = range,
+            body = valueRange
         )
 
-        Log.d(TAG, "Appended row with ${values.size} values to sheet $spreadsheetId at range $range")
-        response
+        if (!response.isSuccessful) {
+            val errorBody = response.errorBody()?.string() ?: "Unknown error"
+            throw RuntimeException("API call failed: ${response.code()} ${response.message()}, body: $errorBody")
+        }
+
+        // Get the parsed response body (Retrofit handles JSON parsing automatically)
+        val appendResponse = response.body()
+            ?: throw RuntimeException("Empty response body")
+
+        // Validate the response has the expected spreadsheet ID
+        if (appendResponse.spreadsheetId != spreadsheetId) {
+            Log.w(TAG, "Response spreadsheet ID mismatch: expected $spreadsheetId, got ${appendResponse.spreadsheetId}")
+        }
+
+        Log.d(TAG, "Successfully appended row: ${appendResponse.updates?.updatedRange}")
+        appendResponse
     }.onFailure { exception ->
         Log.e(TAG, "Error appending row to sheet: ${exception.message}", exception)
+        throw exception // Re-throw to maintain Result.failure behavior
     }
 
     companion object {

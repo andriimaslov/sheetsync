@@ -1,6 +1,5 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.IntentSender
 import android.util.Log
@@ -8,12 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.AuthState
-import dev.maslov.sheetsync.service.token.GoogleSheetsAuthorizationManager
-import dev.maslov.sheetsync.service.token.GoogleTokenExchangeService
+import dev.maslov.sheetsync.service.token.AuthorizationManager
 import dev.maslov.sheetsync.service.token.TokenAuthResult
 import dev.maslov.sheetsync.session.AuthRepository
-import dev.maslov.sheetsync.session.AuthRequirementManager
-import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +21,11 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val sheetsManager: GoogleSheetsAuthorizationManager,
-    private val tokenService: GoogleTokenExchangeService,
-    private val oAuthCredManager: OAuthCredManager,
-    private val authRequirementManager: AuthRequirementManager
+    private val authorizationManager: AuthorizationManager
 ) : ViewModel() {
+    companion object {
+        private const val TAG = "AuthViewModel"
+    }
 
     private val _authState = MutableStateFlow(AuthState())
     val authState = _authState.asStateFlow()
@@ -38,12 +34,6 @@ class AuthViewModel @Inject constructor(
     private val _resolutionTrigger = Channel<IntentSender>(Channel.BUFFERED)
     val resolutionTrigger = _resolutionTrigger.receiveAsFlow()
 
-//    private val token = tokenRepository.tokenFlow.stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.WhileSubscribed(5000),
-//        initialValue = null
-//    )
-
     init {
         restoreSession()
         observeAuthRequirement()
@@ -51,7 +41,7 @@ class AuthViewModel @Inject constructor(
 
     private fun observeAuthRequirement() {
         viewModelScope.launch {
-            authRequirementManager.authRequired.collect { isRequired ->
+            authorizationManager.authRequiredFlow.collect { isRequired ->
                 if (isRequired) {
                     Log.d(TAG, "Auth requirement detected, initiating authorization")
                     beginSheetsAuthorization()
@@ -104,11 +94,11 @@ class AuthViewModel @Inject constructor(
 
     fun beginSheetsAuthorization() {
         viewModelScope.launch {
-            when (val result = sheetsManager.authorize()) {
+            when (val result = authorizationManager.authorize()) {
                 is TokenAuthResult.AuthCode -> {
                     // If the user already granted permission, go straight to exchange
                     Log.d(TAG, "Authorization successful, got auth code: ${result.code}")
-                    exchangeCodeForTokens(result.code)
+                    authorizationManager.exchangeCodeForTokens(result.code)
                 }
                 is TokenAuthResult.NeedsResolution -> {
                     // If we need a popup, stop loading and signal the UI
@@ -133,10 +123,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.update { it.copy(isLoading = true) }
 
-            when (val result = sheetsManager.handleAuthorizationResult(data)) {
+            when (val result = authorizationManager.handleAuthorizationResult(data)) {
                 is TokenAuthResult.AuthCode -> {
                     Log.d(TAG, "Authorization resolution successful, got auth code: ${result.code}")
-                    exchangeCodeForTokens(result.code)
+                    authorizationManager.exchangeCodeForTokens(result.code)
                 }
 
                 is TokenAuthResult.Error -> {
@@ -148,25 +138,6 @@ class AuthViewModel @Inject constructor(
                     Log.d(TAG, "Authorization resolution cancelled or unexpected result")
                     _authState.update { it.copy(isLoading = false) }
                 }
-            }
-        }
-    }
-
-    private suspend fun exchangeCodeForTokens(code: String) {
-        try {
-            val response = tokenService.exchangeAuthCode(code)
-
-            Log.d(
-                TAG,
-                "Token exchange successful: accessToken=${response.accessToken}, refreshToken=${response.refreshToken}"
-            )
-
-            oAuthCredManager.saveToken(response.accessToken, response.refreshToken, response.expiresIn)
-            authRequirementManager.resetAuthRequirement()
-            _authState.update { it.copy(isLoading = false, error = null, isGoogleAPIAuthorized = true) }
-        } catch (e: Exception) {
-            _authState.update {
-                it.copy(isLoading = false, error = "Token exchange failed: ${e.message}", isGoogleAPIAuthorized = false)
             }
         }
     }
