@@ -28,7 +28,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
+import dev.maslov.sheetsync.model.Sheet
 import dev.maslov.sheetsync.model.SheetMetadata
+import dev.maslov.sheetsync.model.SheetSelectorState
+import dev.maslov.sheetsync.model.TabSelectorUiState
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -37,16 +40,14 @@ import java.util.UUID
 fun RuleAddForm(
     onSave: (Rule) -> Unit,
     appList: List<AppModel>,
-    availableSheets: List<SheetMetadata>,
-    isLoadingSheets: Boolean,
-    loadingSheetsError: String?,
-    onSelectSheet: (SheetMetadata) -> Unit,
-    onRefreshSheets: () -> Unit,
+    sheetSelectorState: SheetSelectorState,
+    tabSelectorUiState: TabSelectorUiState,
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedSheet by remember { mutableStateOf<SheetMetadata?>(null) }
+    var selectedTab: Sheet? by remember { mutableStateOf(null) }
     var isActive by remember { mutableStateOf(false) }
 
     // app dropdown state
@@ -74,15 +75,28 @@ fun RuleAddForm(
         )
 
         SheetSelector(
-            sheetList = availableSheets,
+            sheetList = sheetSelectorState.sheets,
             selectedSheet = selectedSheet,
-            isLoading = isLoadingSheets,
-            errorMessage = loadingSheetsError,
+            isLoading = sheetSelectorState.isLoading,
+            errorMessage = sheetSelectorState.error,
             onSelect = { sheet ->
                 selectedSheet = sheet
-                onSelectSheet(sheet)
+                sheetSelectorState.onSelect(sheet)
             },
-            onRefresh = onRefreshSheets
+            onRefresh = sheetSelectorState.onRefresh
+        )
+
+        TabSelector(
+            tabList = tabSelectorUiState.tabs,
+            selectedTab = selectedTab,
+            isLoading = tabSelectorUiState.isLoading,
+            errorMessage = tabSelectorUiState.error,
+            onSelect = { tab ->
+                selectedTab = tab
+                tabSelectorUiState.onSelect(tab)
+            },
+            onRefresh = tabSelectorUiState.onRefresh,
+            enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty()
         )
 
         ExposedDropdownMenuBox(

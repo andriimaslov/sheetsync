@@ -3,6 +3,7 @@ package dev.maslov.sheetsync.service.googleapis
 import android.util.Log
 import dev.maslov.sheetsync.model.AppendResponse
 import dev.maslov.sheetsync.model.SheetsValueRange
+import dev.maslov.sheetsync.model.Spreadsheet
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
@@ -10,6 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -25,6 +27,13 @@ interface GoogleSheetsApi {
         @Query("valueInputOption") valueInputOption: String = "USER_ENTERED",
         @Query("insertDataOption") insertDataOption: String = "INSERT_ROWS"
     ): retrofit2.Response<AppendResponse>
+
+    @GET("v4/spreadsheets/{spreadsheetId}")
+    suspend fun getSpreadsheetInfo(
+        @Header("Authorization") authorization: String,
+        @Path("spreadsheetId") spreadsheetId: String,
+        @Query("includeGridData") includeGridData: Boolean = false
+    ): retrofit2.Response<Spreadsheet>
 }
 
 @Singleton
@@ -101,6 +110,45 @@ class SheetService @Inject constructor() {
     }.onFailure { exception ->
         Log.e(TAG, "Error appending row to sheet: ${exception.message}", exception)
         throw exception // Re-throw to maintain Result.failure behavior
+    }
+
+    /**
+     * Retrieves information about a Google Sheets spreadsheet.
+     *
+     * @param accessToken OAuth 2.0 access token for authentication
+     * @param spreadsheetId The ID of the Google Sheets spreadsheet
+     * @param includeGridData Whether to include grid data in the response. Defaults to false
+     * @return Result containing Spreadsheet information on success, or exception on failure
+     */
+    suspend fun getSpreadsheetInfo(
+        accessToken: String,
+        spreadsheetId: String,
+        includeGridData: Boolean = false
+    ): Result<Spreadsheet> = runCatching {
+        Log.d(TAG, "Fetching spreadsheet info for $spreadsheetId")
+
+        require(accessToken.isNotBlank()) { "Access token cannot be blank" }
+        require(spreadsheetId.isNotBlank()) { "Spreadsheet ID cannot be blank" }
+
+        val response = api.getSpreadsheetInfo(
+            authorization = "Bearer $accessToken",
+            spreadsheetId = spreadsheetId,
+            includeGridData = includeGridData
+        )
+
+        if (!response.isSuccessful) {
+            val errorBody = response.errorBody()?.string() ?: "Unknown error"
+            throw RuntimeException("API call failed: ${response.code()} ${response.message()}, body: $errorBody")
+        }
+
+        val spreadsheet = response.body()
+            ?: throw RuntimeException("Empty response body")
+
+        Log.d(TAG, "Successfully retrieved spreadsheet info: ${spreadsheet.spreadsheetId}")
+        spreadsheet
+    }.onFailure { exception ->
+        Log.e(TAG, "Error fetching spreadsheet info: ${exception.message}", exception)
+        throw exception
     }
 
     companion object {

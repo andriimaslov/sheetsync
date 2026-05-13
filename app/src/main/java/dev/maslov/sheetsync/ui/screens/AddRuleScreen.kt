@@ -23,7 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.maslov.sheetsync.model.DriveUiState
+import dev.maslov.sheetsync.model.SheetListUiState
+import dev.maslov.sheetsync.model.SheetSelectorState
+import dev.maslov.sheetsync.model.TabSelectorUiState
+import dev.maslov.sheetsync.model.TabsListUiState
 import dev.maslov.sheetsync.ui.components.RuleAddForm
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
@@ -41,16 +44,27 @@ fun AddRuleScreen(
     authViewModel: AuthViewModel
 ) {
     val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
-    val driveUiState by sheetsViewModel.driveUiState.collectAsState()
+    val sheetListUiState by sheetsViewModel.sheetListUiState.collectAsState()
+    val tabsListUiState by sheetsViewModel.tabListUiState.collectAsState()
 
     // Extract sheet data from driveUiState
-    val availableSheets = when (val state = driveUiState) {
-        is DriveUiState.Success -> state.sheets
+    val availableSheets = when (val state = sheetListUiState) {
+        is SheetListUiState.Success -> state.sheets
         else -> emptyList()
     }
-    val isLoadingSheets = driveUiState is DriveUiState.Loading
-    val loadingSheetsError = when (val state = driveUiState) {
-        is DriveUiState.Error -> state.message
+    val isLoadingSheets = sheetListUiState is SheetListUiState.Loading
+    val loadingSheetsError = when (val state = sheetListUiState) {
+        is SheetListUiState.Error -> state.message
+        else -> null
+    }
+
+    val availableTabs = when (val state = tabsListUiState) {
+        is TabsListUiState.Success -> state.tabs
+        else -> emptyList()
+    }
+    val isLoadingTabs = tabsListUiState is TabsListUiState.Loading
+    val loadingTabsError = when (val state = tabsListUiState) {
+        is TabsListUiState.Error -> state.message
         else -> null
     }
 
@@ -94,11 +108,20 @@ fun AddRuleScreen(
                     onBack()
                 },
                 appList = apps,
-                availableSheets = availableSheets,
-                isLoadingSheets = isLoadingSheets,
-                loadingSheetsError = loadingSheetsError,
-                onSelectSheet = { /* No-op for add form */ },
-                onRefreshSheets = { sheetsViewModel.refreshSheetList(forceUpdate = true) },
+                sheetSelectorState = SheetSelectorState(
+                    availableSheets,
+                    isLoadingSheets,
+                    loadingSheetsError,
+                    { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id) },
+                    { sheetsViewModel.refreshSheetList(forceUpdate = true) }
+                ),
+                tabSelectorUiState = TabSelectorUiState(
+                    availableTabs,
+                    isLoadingTabs,
+                    loadingTabsError,
+                    {},
+                    { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id, true) }
+                ),
                 modifier = Modifier.padding(padding)
             )
         }

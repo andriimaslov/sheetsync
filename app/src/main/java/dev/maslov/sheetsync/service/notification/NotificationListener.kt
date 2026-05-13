@@ -78,7 +78,13 @@ class NotificationListener : NotificationListenerService() {
                     "online purchase"
                 }
                 val values =
-                    listOf(account, LocalDate.now().toString(), category, bankTransaction.description, bankTransaction.amount)
+                    listOf(
+                        account,
+                        LocalDate.now().toString(),
+                        category,
+                        bankTransaction.description,
+                        bankTransaction.amount
+                    )
 
                 scope.launch {
                     val accessToken = authorizationManager.validateAndRefreshToken()
