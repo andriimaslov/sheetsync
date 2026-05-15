@@ -77,6 +77,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work)
+
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
 

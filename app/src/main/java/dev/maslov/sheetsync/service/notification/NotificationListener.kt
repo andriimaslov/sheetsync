@@ -16,6 +16,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.BackoffPolicy
+import java.util.concurrent.TimeUnit
+import com.google.gson.Gson
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
@@ -86,10 +94,21 @@ class NotificationListener : NotificationListenerService() {
                         bankTransaction.amount
                     )
 
-                scope.launch {
-                    val accessToken = authorizationManager.validateAndRefreshToken()
-                    sheetService.appendRow(accessToken!!, matchedRule.sheetId, "Sheet1", values)
-                }
+                // Enqueue background work to process and append the row. WorkManager will handle retries.
+                val ruleJson = Gson().toJson(matchedRule)
+                val workData = workDataOf(
+                    "ruleJson" to ruleJson,
+                    "pkg" to packageName,
+                    "text" to notificationText
+                )
+
+                val request = OneTimeWorkRequestBuilder<dev.maslov.sheetsync.service.work.NotificationProcessingWorker>()
+                    .setInputData(workData)
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                    .build()
+
+                WorkManager.getInstance(applicationContext).enqueue(request)
             } else {
                 Log.d(TAG, "✗ Failed to parse bank transaction from notification text")
             }
