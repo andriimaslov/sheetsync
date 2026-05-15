@@ -2,6 +2,7 @@ package dev.maslov.sheetsync.configuration
 
 import android.content.Context
 import androidx.room.Room
+import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,4 +56,7 @@ object AppModule {
         oAuthCredManager: OAuthCredManager,
         authRequirementManager: AuthRequirementManager
     ) = AuthorizationManager(context, BuildConfig.OAUTH_CLIENT_ID, oAuthCredManager, authRequirementManager)
+
+    @Provides
+    fun providesWorkManager(@ApplicationContext context: Context): WorkManager = WorkManager.getInstance(context)
 }

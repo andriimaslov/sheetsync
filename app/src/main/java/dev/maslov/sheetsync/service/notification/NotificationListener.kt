@@ -4,26 +4,27 @@ import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
+import dev.maslov.sheetsync.service.work.NotificationProcessingWorker
 import jakarta.inject.Inject
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.BackoffPolicy
-import java.util.concurrent.TimeUnit
-import com.google.gson.Gson
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
@@ -35,6 +36,9 @@ class NotificationListener : NotificationListenerService() {
 
     @Inject
     lateinit var authorizationManager: AuthorizationManager
+
+    @Inject
+    lateinit var workManager: WorkManager
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var activeRules = listOf<Rule>()
@@ -102,13 +106,13 @@ class NotificationListener : NotificationListenerService() {
                     "text" to notificationText
                 )
 
-                val request = OneTimeWorkRequestBuilder<dev.maslov.sheetsync.service.work.NotificationProcessingWorker>()
+                val request = OneTimeWorkRequestBuilder<NotificationProcessingWorker>()
                     .setInputData(workData)
                     .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                     .build()
 
-                WorkManager.getInstance(applicationContext).enqueue(request)
+                workManager.enqueue(request)
             } else {
                 Log.d(TAG, "✗ Failed to parse bank transaction from notification text")
             }

@@ -18,10 +18,10 @@ import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.notification.parseNotificationText
 import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @HiltWorker
 class NotificationProcessingWorker @AssistedInject constructor(
@@ -100,7 +100,9 @@ class NotificationProcessingWorker @AssistedInject constructor(
     }
 
     private fun postReAuthNotification() {
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = applicationContext.getSystemService(
+            Context.NOTIFICATION_SERVICE
+        ) as NotificationManager
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -124,9 +126,3 @@ class NotificationProcessingWorker @AssistedInject constructor(
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 }
-
-
-
-
-
-
