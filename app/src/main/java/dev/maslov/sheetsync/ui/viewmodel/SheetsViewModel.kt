@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.Sheet
-import dev.maslov.sheetsync.model.SheetListUiState
 import dev.maslov.sheetsync.model.SheetMetadata
 import dev.maslov.sheetsync.model.Spreadsheet
-import dev.maslov.sheetsync.model.TabsListUiState
+import dev.maslov.sheetsync.model.uistate.SheetListUiState
+import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.service.googleapis.DriveService
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.token.AuthorizationManager

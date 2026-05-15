@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.maslov.sheetsync.model.ClientCredentialsUiState
 import dev.maslov.sheetsync.model.OAuthCreds
+import dev.maslov.sheetsync.model.uistate.ClientCredentialsUiState
 import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -19,10 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.maslov.sheetsync.model.SheetListUiState
-import dev.maslov.sheetsync.model.SheetSelectorState
-import dev.maslov.sheetsync.model.TabSelectorUiState
-import dev.maslov.sheetsync.model.TabsListUiState
+import dev.maslov.sheetsync.model.uistate.SheetListUiState
+import dev.maslov.sheetsync.model.uistate.SheetSelectorState
+import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
+import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.ui.components.RuleEditForm
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel

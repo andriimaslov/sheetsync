@@ -1,4 +1,6 @@
-package dev.maslov.sheetsync.model
+package dev.maslov.sheetsync.model.uistate
+
+import dev.maslov.sheetsync.model.SheetMetadata
 
 data class SheetSelectorState(
     val sheets: List<SheetMetadata>,

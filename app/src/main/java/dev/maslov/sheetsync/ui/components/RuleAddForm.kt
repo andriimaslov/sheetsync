@@ -30,8 +30,8 @@ import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.model.Sheet
 import dev.maslov.sheetsync.model.SheetMetadata
-import dev.maslov.sheetsync.model.SheetSelectorState
-import dev.maslov.sheetsync.model.TabSelectorUiState
+import dev.maslov.sheetsync.model.uistate.SheetSelectorState
+import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
 import java.time.LocalDateTime
 import java.util.UUID
 

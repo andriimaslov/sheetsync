@@ -1,4 +1,6 @@
-package dev.maslov.sheetsync.model
+package dev.maslov.sheetsync.model.uistate
+
+import dev.maslov.sheetsync.model.SheetMetadata
 
 sealed class SheetListUiState {
     data object Idle : SheetListUiState()

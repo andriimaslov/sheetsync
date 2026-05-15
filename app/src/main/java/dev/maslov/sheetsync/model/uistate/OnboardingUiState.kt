@@ -1,4 +1,4 @@
-package dev.maslov.sheetsync.model
+package dev.maslov.sheetsync.model.uistate
 
 data class OnboardingUiState(
     val isFirstLaunch: Boolean = true,

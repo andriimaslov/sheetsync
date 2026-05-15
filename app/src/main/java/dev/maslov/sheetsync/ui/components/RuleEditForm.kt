@@ -29,8 +29,8 @@ import coil.compose.AsyncImage
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.model.Sheet
-import dev.maslov.sheetsync.model.SheetSelectorState
-import dev.maslov.sheetsync.model.TabSelectorUiState
+import dev.maslov.sheetsync.model.uistate.SheetSelectorState
+import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
