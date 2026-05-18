@@ -43,7 +43,6 @@ fun RuleEditForm(
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf(rule.title) }
-    var description by remember { mutableStateOf(rule.description) }
     var selectedSheet by remember { mutableStateOf(sheetSelectorState.sheets.find { it.id == rule.sheetId }) }
     var selectedTab: Sheet? by remember { mutableStateOf(null) }
     var isActive by remember { mutableStateOf(rule.isActive) }
@@ -62,13 +61,6 @@ fun RuleEditForm(
             value = title,
             onValueChange = { title = it },
             label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -150,7 +142,7 @@ fun RuleEditForm(
         HorizontalDivider()
 
         Text("Last Run Status: ${rule.lastRunStatus}")
-        Text("Last Run At: ${rule.createdAt}")
+        Text("Last Run At: ${rule.createdAt.toLocalDate()}")
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -158,9 +150,9 @@ fun RuleEditForm(
             onClick = {
                 val updatedRule = rule.copy(
                     title = title,
-                    description = description,
                     sheetId = selectedSheet?.id ?: rule.sheetId,
                     sheetName = selectedSheet?.name ?: rule.sheetName,
+                    tabName = selectedTab?.properties?.title ?: rule.tabName,
                     isActive = isActive
                 )
                 onSave(updatedRule)

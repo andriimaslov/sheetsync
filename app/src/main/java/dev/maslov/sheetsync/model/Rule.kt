@@ -10,14 +10,16 @@ import java.util.UUID
 data class Rule(
     @PrimaryKey val id: UUID,
     val title: String,
-    val description: String,
     val isActive: Boolean,
     val createdAt: LocalDateTime,
     val sheetId: String,
     @ColumnInfo(defaultValue = "")
     val sheetName: String,
+    val tabName: String?,
     val lastRunStatus: String,
-    val lastRunAt: LocalDateTime,
-    @ColumnInfo(defaultValue = "none")
-    val appId: String
+    val lastRunAt: LocalDateTime?,
+    @ColumnInfo(defaultValue = "")
+    val appId: String,
+    @ColumnInfo(defaultValue = "")
+    val parser: String
 )

@@ -12,7 +12,8 @@ import dev.maslov.sheetsync.model.Rule
 fun RuleMetaInfoPanel(rule: Rule) {
     Column(modifier = Modifier.padding(top = 12.dp)) {
         Text("Sheet name: ${rule.sheetName}")
-        Text("Tab name: ${rule.sheetName}")
+        Text("Tab name: ${rule.tabName}")
         Text("Last Append Status: ${rule.lastRunStatus}")
+        Text("Last Append At: ${rule.lastRunAt}")
     }
 }

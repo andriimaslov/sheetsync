@@ -45,7 +45,6 @@ fun RuleAddForm(
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     var selectedSheet by remember { mutableStateOf<SheetMetadata?>(null) }
     var selectedTab: Sheet? by remember { mutableStateOf(null) }
     var isActive by remember { mutableStateOf(false) }
@@ -67,12 +66,6 @@ fun RuleAddForm(
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
-        )
 
         SheetSelector(
             sheetList = sheetSelectorState.sheets,
@@ -158,14 +151,15 @@ fun RuleAddForm(
                 val rule = Rule(
                     id = UUID.randomUUID(),
                     title = title,
-                    description = description,
                     isActive = isActive,
                     createdAt = LocalDateTime.now(),
-                    sheetId = selectedSheet?.id ?: "none",
-                    sheetName = selectedSheet?.name ?: "",
+                    sheetId = selectedSheet?.id ?: "Unknown",
+                    sheetName = selectedSheet?.name ?: "Unknown",
+                    tabName = selectedTab?.properties?.title ?: "Unknown",
                     lastRunStatus = "Init",
-                    lastRunAt = LocalDateTime.now(),
-                    appId = selectedApp?.packageName ?: "none"
+                    lastRunAt = null,
+                    appId = selectedApp?.packageName ?: "Unknown",
+                    parser = "test"
                 )
                 onSave(rule)
             },

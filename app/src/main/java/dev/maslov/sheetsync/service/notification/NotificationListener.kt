@@ -18,13 +18,13 @@ import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
 import dev.maslov.sheetsync.service.work.NotificationProcessingWorker
 import jakarta.inject.Inject
-import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {

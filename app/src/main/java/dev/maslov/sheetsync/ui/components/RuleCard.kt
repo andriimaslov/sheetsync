@@ -55,9 +55,9 @@ fun RuleCard(rule: Rule, app: AppModel?, onToggle: () -> Unit, onDelete: () -> U
                     Text(
                         text =
                         if (rule.isActive) {
-                            rule.description
+                            ""
                         } else {
-                            "${rule.description} (Paused)"
+                            "(Paused)"
                         }
                     )
                 }

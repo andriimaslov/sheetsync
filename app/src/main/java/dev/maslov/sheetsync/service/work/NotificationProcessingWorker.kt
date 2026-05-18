@@ -18,10 +18,10 @@ import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.notification.parseNotificationText
 import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @HiltWorker
 class NotificationProcessingWorker @AssistedInject constructor(
