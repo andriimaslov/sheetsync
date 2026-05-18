@@ -82,7 +82,7 @@ fun RuleCard(rule: Rule, app: AppModel?, onToggle: () -> Unit, onDelete: () -> U
             }
 
             if (expanded) {
-                MetaInfoPanel(rule)
+                RuleMetaInfoPanel(rule)
             }
         }
     }

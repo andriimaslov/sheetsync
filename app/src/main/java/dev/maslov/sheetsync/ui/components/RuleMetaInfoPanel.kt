@@ -9,11 +9,10 @@ import androidx.compose.ui.unit.dp
 import dev.maslov.sheetsync.model.Rule
 
 @Composable
-fun MetaInfoPanel(rule: Rule) {
+fun RuleMetaInfoPanel(rule: Rule) {
     Column(modifier = Modifier.padding(top = 12.dp)) {
-        Text("Rule ID: ${rule.id}")
-        Text("Created: ${rule.createdAt}")
-        Text("Sheet ID: ${rule.sheetId}")
+        Text("Sheet name: ${rule.sheetName}")
+        Text("Tab name: ${rule.sheetName}")
         Text("Last Append Status: ${rule.lastRunStatus}")
     }
 }

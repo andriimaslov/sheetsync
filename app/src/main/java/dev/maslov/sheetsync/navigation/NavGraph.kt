@@ -13,7 +13,6 @@ import dev.maslov.sheetsync.ui.screens.AddRuleScreen
 import dev.maslov.sheetsync.ui.screens.OnboardingScreen
 import dev.maslov.sheetsync.ui.screens.RuleEditScreen
 import dev.maslov.sheetsync.ui.screens.RuleListScreen
-import dev.maslov.sheetsync.ui.screens.SearchScreen
 import dev.maslov.sheetsync.ui.screens.SettingsScreen
 import dev.maslov.sheetsync.ui.screens.SplashScreen
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
@@ -74,7 +73,6 @@ fun AppNavGraph() {
                 onAddRule = {
                     navController.navigate(Routes.AddRule.value)
                 },
-                onSearch = { navController.navigate("search") },
                 onEditRule = { ruleId -> navController.navigate(Routes.RuleEdit.createRoute(ruleId)) },
                 ruleViewModel = ruleViewModel,
                 appListViewModel = appListViewModel
@@ -118,10 +116,6 @@ fun AppNavGraph() {
                 sheetsViewModel = sheetsViewModel,
                 authViewModel = authViewModel
             )
-        }
-
-        composable("search") {
-            SearchScreen(onBack = { navController.popBackStack() })
         }
     }
 }

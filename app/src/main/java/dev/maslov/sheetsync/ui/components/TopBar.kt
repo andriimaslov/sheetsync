@@ -12,13 +12,10 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(title: String, onSearchClick: () -> Unit, onSettingsClick: () -> Unit) {
+fun TopBar(title: String, onSettingsClick: () -> Unit) {
     TopAppBar(
         title = { Text(title) },
         actions = {
-            IconButton(onClick = onSearchClick) {
-                Icon(Icons.Default.Search, contentDescription = "Search")
-            }
             IconButton(onClick = onSettingsClick) {
                 Icon(Icons.Default.Settings, contentDescription = "Settings")
             }

@@ -23,7 +23,6 @@ import java.util.UUID
 fun RuleListScreen(
     onOpenSettings: () -> Unit,
     onAddRule: () -> Unit,
-    onSearch: () -> Unit,
     onEditRule: (UUID) -> Unit,
     ruleViewModel: RuleViewModel,
     appListViewModel: AppListViewModel
@@ -35,7 +34,6 @@ fun RuleListScreen(
         topBar = {
             TopBar(
                 title = "SheetSync",
-                onSearchClick = onSearch,
                 onSettingsClick = onOpenSettings
             )
         },
