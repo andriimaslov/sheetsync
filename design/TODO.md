@@ -5,3 +5,9 @@
 - ~~fetch all sheet api~~ DONE
 - ~~modify sheet api~~ DONE
 - ~~app list~~ DONE 
+
+
+15-05-26
+- cache. TTL 
+- regex presets?
+- RuleProfile? like stuff that can be applied depending on a app that tracked.
