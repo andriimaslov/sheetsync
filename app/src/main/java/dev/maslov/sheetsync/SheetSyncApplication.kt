@@ -14,8 +14,11 @@ class SheetSyncApplication :
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-        .setWorkerFactory(workerFactory)
-        .setExecutor(Executors.newFixedThreadPool(2))
-        .build()
+    override val workManagerConfiguration: Configuration
+        get() {
+            return Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setExecutor(Executors.newFixedThreadPool(2))
+                .build()
+        }
 }

@@ -82,6 +82,7 @@ dependencies {
 
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
+    ksp(libs.hilt.work.compiler)
 
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.tink)
