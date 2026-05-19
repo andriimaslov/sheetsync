@@ -33,6 +33,8 @@ import dev.maslov.sheetsync.model.SheetMetadata
 import dev.maslov.sheetsync.model.uistate.SheetSelectorState
 import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
 import dev.maslov.sheetsync.service.parser.NotificationParser
+import dev.maslov.sheetsync.ui.validation.FormFieldErrors
+import dev.maslov.sheetsync.ui.validation.ValidationHelper
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -56,6 +58,22 @@ fun RuleAddForm(
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
 
+    // Validation state
+    var errors by remember { mutableStateOf(FormFieldErrors()) }
+
+    // Validation function
+    fun validate(): Boolean {
+        val newErrors = FormFieldErrors(
+            titleError = if (!ValidationHelper.isStringValid(title)) ValidationHelper.TITLE_REQUIRED else null,
+            parserError = if (!ValidationHelper.isSelected(selectedParser)) ValidationHelper.PARSER_REQUIRED else null,
+            sheetError = if (!ValidationHelper.isSelected(selectedSheet)) ValidationHelper.SHEET_REQUIRED else null,
+            tabError = if (!ValidationHelper.isSelected(selectedTab)) ValidationHelper.TAB_REQUIRED else null,
+            appError = if (!ValidationHelper.isSelected(selectedApp)) ValidationHelper.APP_REQUIRED else null
+        )
+        errors = newErrors
+        return newErrors.isEmpty()
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -64,9 +82,21 @@ fun RuleAddForm(
     ) {
         OutlinedTextField(
             value = title,
-            onValueChange = { title = it },
+            onValueChange = {
+                title = it
+                // Clear error when user starts typing
+                if (errors.titleError != null && title.isNotBlank()) {
+                    errors = errors.copy(titleError = null)
+                }
+            },
             label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.titleError != null,
+            supportingText = {
+                if (errors.titleError != null) {
+                    Text(errors.titleError!!)
+                }
+            }
         )
 
         ParserSelector(
@@ -74,7 +104,13 @@ fun RuleAddForm(
             selectedParser = selectedParser,
             onSelect = { parser ->
                 selectedParser = parser
-            }
+                // Clear error when user selects
+                if (errors.parserError != null) {
+                    errors = errors.copy(parserError = null)
+                }
+            },
+            isError = errors.parserError != null,
+            errorMessage = errors.parserError
         )
 
         SheetSelector(
@@ -85,8 +121,14 @@ fun RuleAddForm(
             onSelect = { sheet ->
                 selectedSheet = sheet
                 sheetSelectorState.onSelect(sheet)
+                // Clear error when user selects
+                if (errors.sheetError != null) {
+                    errors = errors.copy(sheetError = null)
+                }
             },
-            onRefresh = sheetSelectorState.onRefresh
+            onRefresh = sheetSelectorState.onRefresh,
+            isError = errors.sheetError != null,
+            validationError = errors.sheetError
         )
 
         TabSelector(
@@ -97,9 +139,15 @@ fun RuleAddForm(
             onSelect = { tab ->
                 selectedTab = tab
                 tabSelectorUiState.onSelect(tab)
+                // Clear error when user selects
+                if (errors.tabError != null) {
+                    errors = errors.copy(tabError = null)
+                }
             },
             onRefresh = tabSelectorUiState.onRefresh,
-            enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty()
+            enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty(),
+            isError = errors.tabError != null,
+            validationError = errors.tabError
         )
 
         ExposedDropdownMenuBox(
@@ -116,7 +164,13 @@ fun RuleAddForm(
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                isError = errors.appError != null,
+                supportingText = {
+                    if (errors.appError != null) {
+                        Text(errors.appError!!)
+                    }
+                }
             )
 
             // The actual menu that pops up
@@ -132,7 +186,10 @@ fun RuleAddForm(
                         onClick = {
                             selectedApp = app
                             appListExpanded = false
-                            // Do something with the selected app package here
+                            // Clear error when user selects
+                            if (errors.appError != null) {
+                                errors = errors.copy(appError = null)
+                            }
                         },
                         leadingIcon = {
                             // Using Coil to display the app icon
@@ -160,20 +217,22 @@ fun RuleAddForm(
 
         Button(
             onClick = {
-                val rule = Rule(
-                    id = UUID.randomUUID(),
-                    title = title,
-                    isActive = isActive,
-                    createdAt = LocalDateTime.now(),
-                    sheetId = selectedSheet?.id ?: "Unknown",
-                    sheetName = selectedSheet?.name ?: "Unknown",
-                    tabName = selectedTab?.properties?.title ?: "Unknown",
-                    lastRunStatus = "Init",
-                    lastRunAt = null,
-                    appId = selectedApp?.packageName ?: "Unknown",
-                    parser = selectedParser?.name ?: "Unknown"
-                )
-                onSave(rule)
+                if (validate()) {
+                    val rule = Rule(
+                        id = UUID.randomUUID(),
+                        title = title,
+                        isActive = isActive,
+                        createdAt = LocalDateTime.now(),
+                        sheetId = selectedSheet?.id ?: "Unknown",
+                        sheetName = selectedSheet?.name ?: "Unknown",
+                        tabName = selectedTab?.properties?.title ?: "Unknown",
+                        lastRunStatus = "Init",
+                        lastRunAt = null,
+                        appId = selectedApp?.packageName ?: "Unknown",
+                        parser = selectedParser?.name ?: "Unknown"
+                    )
+                    onSave(rule)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {

@@ -3,8 +3,6 @@ package dev.maslov.sheetsync.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -28,7 +26,9 @@ fun ParserSelector(
     parserList: List<NotificationParser>,
     selectedParser: NotificationParser?,
     onSelect: (NotificationParser) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    errorMessage: String? = null
 ) {
     var parserListExpanded by remember { mutableStateOf(false) }
 
@@ -51,7 +51,13 @@ fun ParserSelector(
                     ExposedDropdownMenuDefaults.TrailingIcon(parserListExpanded)
                 },
                 modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                enabled = parserList.isNotEmpty()
+                enabled = parserList.isNotEmpty(),
+                isError = isError,
+                supportingText = {
+                    if (errorMessage != null) {
+                        Text(errorMessage)
+                    }
+                }
             )
 
             ExposedDropdownMenu(

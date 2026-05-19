@@ -40,7 +40,9 @@ fun TabSelector(
     onSelect: (Sheet) -> Unit,
     onRefresh: (SheetMetadata) -> Unit,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    validationError: String? = null
 ) {
     var sheetListExpanded by remember { mutableStateOf(enabled) }
 
@@ -67,7 +69,13 @@ fun TabSelector(
                     }
                 },
                 modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                enabled = enabled && !isLoading && tabList.isNotEmpty()
+                enabled = enabled && !isLoading && tabList.isNotEmpty(),
+                isError = isError,
+                supportingText = {
+                    if (validationError != null) {
+                        Text(validationError)
+                    }
+                }
             )
 
             ExposedDropdownMenu(

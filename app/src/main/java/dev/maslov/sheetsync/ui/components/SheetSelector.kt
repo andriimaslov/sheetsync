@@ -38,7 +38,9 @@ fun SheetSelector(
     errorMessage: String?,
     onSelect: (SheetMetadata) -> Unit,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    validationError: String? = null
 ) {
     var sheetListExpanded by remember { mutableStateOf(false) }
 
@@ -65,7 +67,13 @@ fun SheetSelector(
                     }
                 },
                 modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                enabled = !isLoading && sheetList.isNotEmpty()
+                enabled = !isLoading && sheetList.isNotEmpty(),
+                isError = isError,
+                supportingText = {
+                    if (validationError != null) {
+                        Text(validationError)
+                    }
+                }
             )
 
             ExposedDropdownMenu(
