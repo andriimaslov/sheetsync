@@ -18,13 +18,12 @@ import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
 import dev.maslov.sheetsync.service.work.NotificationProcessingWorker
 import jakarta.inject.Inject
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
@@ -73,49 +72,21 @@ class NotificationListener : NotificationListenerService() {
 
         if (matchedRule != null) {
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
-            val bankTransaction = parseNotificationText(notificationText)
-            if (bankTransaction != null) {
-                Log.d(
-                    TAG,
-                    "✓ Parsed notification: amount: ${bankTransaction.amount}, description: ${bankTransaction.description}"
-                )
+            // Enqueue background work to process and append the row. WorkManager will handle retries.
+            val ruleJson = Gson().toJson(matchedRule)
+            val workData = workDataOf(
+                "ruleJson" to ruleJson,
+                "pkg" to packageName,
+                "text" to notificationText
+            )
 
-                val account = if (packageName.contains("business")) "fop" else "fiz"
-                val category = if (bankTransaction.description.contains(
-                        "Переказ"
-                    )
-                ) {
-                    "transfer from card"
-                } else {
-                    "online purchase"
-                }
-                val values =
-                    listOf(
-                        account,
-                        LocalDate.now().toString(),
-                        category,
-                        bankTransaction.description,
-                        bankTransaction.amount
-                    )
+            val request = OneTimeWorkRequestBuilder<NotificationProcessingWorker>()
+                .setInputData(workData)
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                .build()
 
-                // Enqueue background work to process and append the row. WorkManager will handle retries.
-                val ruleJson = Gson().toJson(matchedRule)
-                val workData = workDataOf(
-                    "ruleJson" to ruleJson,
-                    "pkg" to packageName,
-                    "text" to notificationText
-                )
-
-                val request = OneTimeWorkRequestBuilder<NotificationProcessingWorker>()
-                    .setInputData(workData)
-                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-                    .build()
-
-                workManager.enqueue(request)
-            } else {
-                Log.d(TAG, "✗ Failed to parse bank transaction from notification text")
-            }
+            workManager.enqueue(request)
         } else {
             Log.d(TAG, "✗ No matching rule for package: $packageName")
         }

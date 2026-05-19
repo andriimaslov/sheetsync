@@ -19,6 +19,7 @@ import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.OnboardingViewModel
+import dev.maslov.sheetsync.ui.viewmodel.ParserViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
@@ -34,6 +35,7 @@ fun AppNavGraph() {
     val appListViewModel: AppListViewModel = hiltViewModel()
     val sheetsViewModel: SheetsViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val parserViewModel: ParserViewModel = hiltViewModel()
 
     val isFirstLaunch = onboardingViewModel.isFirstLaunch.collectAsState().value
     if (isFirstLaunch == null) {
@@ -94,7 +96,8 @@ fun AppNavGraph() {
                 ruleViewModel = ruleViewModel,
                 appListViewModel = appListViewModel,
                 sheetsViewModel = sheetsViewModel,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                parserViewModel = parserViewModel
             )
         }
 
@@ -114,7 +117,8 @@ fun AppNavGraph() {
                 ruleViewModel = ruleViewModel,
                 appListViewModel = appListViewModel,
                 sheetsViewModel = sheetsViewModel,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                parserViewModel = parserViewModel
             )
         }
     }

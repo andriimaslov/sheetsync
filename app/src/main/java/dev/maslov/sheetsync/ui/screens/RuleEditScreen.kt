@@ -26,6 +26,7 @@ import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.ui.components.RuleEditForm
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
+import dev.maslov.sheetsync.ui.viewmodel.ParserViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
 import java.util.UUID
@@ -39,13 +40,15 @@ fun RuleEditScreen(
     ruleViewModel: RuleViewModel,
     appListViewModel: AppListViewModel,
     sheetsViewModel: SheetsViewModel,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    parserViewModel: ParserViewModel
 ) {
     val rules by ruleViewModel.rules.collectAsState()
     val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
     val sheetListUiState by sheetsViewModel.sheetListUiState.collectAsState()
     val tabsListUiState by sheetsViewModel.tabListUiState.collectAsState()
     val rule = rules.find { it.id == ruleId }
+    val parserList by parserViewModel.parsers.collectAsState()
 
     // Extract sheet data from driveUiState
     val availableSheets = when (val state = sheetListUiState) {
@@ -118,6 +121,7 @@ fun RuleEditScreen(
                     {},
                     { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id, true) }
                 ),
+                parserList = parserList,
                 modifier = Modifier.padding(padding)
             )
         } else {

@@ -15,7 +15,8 @@ data class Rule(
     val sheetId: String,
     @ColumnInfo(defaultValue = "")
     val sheetName: String,
-    val tabName: String?,
+    @ColumnInfo(defaultValue = "")
+    val tabName: String,
     val lastRunStatus: String,
     val lastRunAt: LocalDateTime?,
     @ColumnInfo(defaultValue = "")

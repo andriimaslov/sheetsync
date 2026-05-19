@@ -8,11 +8,9 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.BankTransaction
+import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-
-val notificationTextRegex = """([+-][\d\s]+)\S\s+(.*?)(?=\s+\*|\n|\d{2}:\d{2})""".toRegex()
 
 suspend fun fetchAppsWithNotifications(context: Context): List<AppModel> = withContext(Dispatchers.IO) {
     val pm = context.packageManager
@@ -51,25 +49,6 @@ fun createNotificationChannel(context: Context) {
     val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.createNotificationChannel(channel)
-}
-
-fun parseNotificationText(text: String): BankTransaction? {
-    // We use [\s\S] to match across newlines without needing extra flags
-    val matchResult = notificationTextRegex.find(text)
-
-    return if (matchResult != null) {
-        // groupValues[0] is the entire match, [1] and [2] are our captures
-        val rawAmount = matchResult.groupValues[1].trim()
-
-        // Clean up the description: replace newlines and multiple spaces with a single space
-        val rawDescription = matchResult.groupValues[2]
-            .replace(Regex("\\s+"), " ")
-            .trim()
-
-        BankTransaction(LocalDateTime.now(), rawDescription, rawAmount)
-    } else {
-        null
-    }
 }
 
 private fun isNotificationPermissionGranted(context: Context, packageName: String): Boolean =

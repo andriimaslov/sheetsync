@@ -30,6 +30,7 @@ import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.ui.components.RuleAddForm
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
 import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
+import dev.maslov.sheetsync.ui.viewmodel.ParserViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
 
@@ -41,11 +42,13 @@ fun AddRuleScreen(
     ruleViewModel: RuleViewModel,
     appListViewModel: AppListViewModel,
     sheetsViewModel: SheetsViewModel,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    parserViewModel: ParserViewModel
 ) {
     val apps by appListViewModel.uiState.collectAsStateWithLifecycle()
     val sheetListUiState by sheetsViewModel.sheetListUiState.collectAsState()
     val tabsListUiState by sheetsViewModel.tabListUiState.collectAsState()
+    val parserList by parserViewModel.parsers.collectAsState()
 
     // Extract sheet data from driveUiState
     val availableSheets = when (val state = sheetListUiState) {
@@ -122,6 +125,7 @@ fun AddRuleScreen(
                     {},
                     { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id, true) }
                 ),
+                parserList = parserList,
                 modifier = Modifier.padding(padding)
             )
         }

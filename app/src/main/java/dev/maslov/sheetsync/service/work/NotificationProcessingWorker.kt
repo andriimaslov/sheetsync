@@ -15,13 +15,13 @@ import dagger.assisted.AssistedInject
 import dev.maslov.sheetsync.MainActivity
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
-import dev.maslov.sheetsync.service.notification.parseNotificationText
+import dev.maslov.sheetsync.service.parser.NotificationParser
 import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @HiltWorker
 class NotificationProcessingWorker @AssistedInject constructor(
@@ -29,7 +29,8 @@ class NotificationProcessingWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val authorizationManager: AuthorizationManager,
     private val sheetService: SheetService,
-    private val ruleRepository: RuleRepository
+    private val ruleRepository: RuleRepository,
+    private val parsers: Map<String, @JvmSuppressWildcards NotificationParser>
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
@@ -61,19 +62,30 @@ class NotificationProcessingWorker @AssistedInject constructor(
                 return@withContext Result.failure()
             }
 
-            val parsed = parseNotificationText(notificationText)
-            if (parsed == null) {
-                Log.d(TAG, "Notification parsing returned null; nothing to append")
-                updateRule(rule, "Parsed Empty", LocalDateTime.now())
-                return@withContext Result.success()
+            val parser = parsers[rule.parser]
+            if (parser == null) {
+                Log.e(TAG, "Unknown parser id=${rule.parser} for rule=${rule.id}")
+                updateRule(rule, "Invalid Parser", null)
+                return@withContext Result.failure()
             }
 
-            val account = if (packageName.contains("business")) "fop" else "fiz"
-            val category = if (parsed.description.contains("Переказ")) "transfer from card" else "online purchase"
-            val sheetName = if (rule.sheetName.isNotBlank()) rule.sheetName else "Sheet1"
-            val values = listOf(account, LocalDate.now().toString(), category, parsed.description, parsed.amount)
+            val parsedTransaction = try {
+                parser.parse(notificationText)
+            } catch (e: Exception) {
+                Log.e(TAG, "Parser ${rule.parser} failed for rule=${rule.id}: ${e.message}", e)
+                updateRule(rule, "Parse Error", null)
+                return@withContext Result.failure()
+            }
 
-            val result = sheetService.appendRow(accessToken, rule.sheetId, sheetName, values)
+            val values =
+                listOf(
+                    parsedTransaction.account,
+                    LocalDate.now().toString(),
+                    parsedTransaction.description,
+                    parsedTransaction.amount
+                )
+
+            val result = sheetService.appendRow(accessToken, rule.sheetId, rule.tabName, values)
             return@withContext if (result.isSuccess) {
                 Log.d(TAG, "Sheet append successful for ${rule.sheetId}")
                 updateRule(rule, "Success", LocalDateTime.now())

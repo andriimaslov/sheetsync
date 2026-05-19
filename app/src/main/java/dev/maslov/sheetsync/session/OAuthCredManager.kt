@@ -4,11 +4,11 @@ import androidx.datastore.core.DataStore
 import dev.maslov.sheetsync.model.OAuthConfiguration
 import dev.maslov.sheetsync.model.OAuthCreds
 import dev.maslov.sheetsync.model.OAuthToken
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class OAuthCredManager @Inject constructor(private val dataStore: DataStore<OAuthConfiguration>) {

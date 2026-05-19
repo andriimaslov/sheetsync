@@ -31,6 +31,7 @@ import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.model.Sheet
 import dev.maslov.sheetsync.model.uistate.SheetSelectorState
 import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
+import dev.maslov.sheetsync.service.parser.NotificationParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +41,7 @@ fun RuleEditForm(
     appList: List<AppModel>,
     sheetSelectorState: SheetSelectorState,
     tabSelectorUiState: TabSelectorUiState,
+    parserList: List<NotificationParser>,
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf(rule.title) }
@@ -50,6 +52,7 @@ fun RuleEditForm(
     // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf(appList.find { it.packageName == rule.appId }) }
+    var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
 
     Column(
         modifier = modifier
@@ -62,6 +65,14 @@ fun RuleEditForm(
             onValueChange = { title = it },
             label = { Text("Title") },
             modifier = Modifier.fillMaxWidth()
+        )
+
+        ParserSelector(
+            parserList = parserList,
+            selectedParser = selectedParser,
+            onSelect = { parser ->
+                selectedParser = parser
+            }
         )
 
         SheetSelector(

@@ -32,6 +32,7 @@ import dev.maslov.sheetsync.model.Sheet
 import dev.maslov.sheetsync.model.SheetMetadata
 import dev.maslov.sheetsync.model.uistate.SheetSelectorState
 import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
+import dev.maslov.sheetsync.service.parser.NotificationParser
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -42,6 +43,7 @@ fun RuleAddForm(
     appList: List<AppModel>,
     sheetSelectorState: SheetSelectorState,
     tabSelectorUiState: TabSelectorUiState,
+    parserList: List<NotificationParser>,
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
@@ -52,6 +54,7 @@ fun RuleAddForm(
     // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
+    var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
 
     Column(
         modifier = modifier
@@ -66,6 +69,13 @@ fun RuleAddForm(
             modifier = Modifier.fillMaxWidth()
         )
 
+        ParserSelector(
+            parserList = parserList,
+            selectedParser = selectedParser,
+            onSelect = { parser ->
+                selectedParser = parser
+            }
+        )
 
         SheetSelector(
             sheetList = sheetSelectorState.sheets,
@@ -104,7 +114,9 @@ fun RuleAddForm(
                 label = { Text("Apps with Notifications On") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = appListExpanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth()
             )
 
             // The actual menu that pops up
@@ -159,7 +171,7 @@ fun RuleAddForm(
                     lastRunStatus = "Init",
                     lastRunAt = null,
                     appId = selectedApp?.packageName ?: "Unknown",
-                    parser = "test"
+                    parser = selectedParser?.name ?: "Unknown"
                 )
                 onSave(rule)
             },
