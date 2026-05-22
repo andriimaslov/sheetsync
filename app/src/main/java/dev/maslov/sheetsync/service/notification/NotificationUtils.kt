@@ -7,8 +7,6 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import dev.maslov.sheetsync.model.AppModel
-import dev.maslov.sheetsync.model.BankTransaction
-import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
