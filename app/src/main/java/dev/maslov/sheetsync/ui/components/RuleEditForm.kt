@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,13 +49,20 @@ fun RuleEditForm(
 ) {
     var title by remember { mutableStateOf(rule.title) }
     var selectedSheet by remember { mutableStateOf(sheetSelectorState.sheets.find { it.id == rule.sheetId }) }
-    var selectedTab: Sheet? by remember { mutableStateOf(null) }
+    var selectedTab: Sheet? by remember {
+        mutableStateOf(
+            tabSelectorUiState.tabs.find {
+                it.properties.title ==
+                    rule.tabName
+            }
+        )
+    }
     var isActive by remember { mutableStateOf(rule.isActive) }
 
     // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf(appList.find { it.packageName == rule.appId }) }
-    var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
+    var selectedParser by remember { mutableStateOf(parserList.find { it.name == rule.parser }) }
 
     // Validation state
     var errors by remember { mutableStateOf(FormFieldErrors()) }
@@ -70,6 +78,32 @@ fun RuleEditForm(
         )
         errors = newErrors
         return newErrors.isEmpty()
+    }
+
+    LaunchedEffect(sheetSelectorState.sheets, rule.sheetId) {
+        if (selectedSheet == null) {
+            sheetSelectorState.sheets.find { it.id == rule.sheetId }?.let {
+                selectedSheet = it
+                sheetSelectorState.onSelect(it)
+                // Clear error when user selects
+                if (errors.sheetError != null) {
+                    errors = errors.copy(sheetError = null)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(tabSelectorUiState.tabs, rule.tabName) {
+        if (selectedTab == null) {
+            tabSelectorUiState.tabs.find { it.properties.title == rule.tabName }?.let {
+                selectedTab = it
+                tabSelectorUiState.onSelect(it)
+                // Clear error when user selects
+                if (errors.tabError != null) {
+                    errors = errors.copy(tabError = null)
+                }
+            }
+        }
     }
 
     Column(
@@ -142,7 +176,7 @@ fun RuleEditForm(
                     errors = errors.copy(tabError = null)
                 }
             },
-            onRefresh = tabSelectorUiState.onRefresh,
+            onRefresh = { selectedSheet?.let { tabSelectorUiState.onRefresh(it) } },
             enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty(),
             isError = errors.tabError != null,
             validationError = errors.tabError
@@ -160,7 +194,9 @@ fun RuleEditForm(
                 label = { Text("Apps with Notifications On") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = appListExpanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
                 isError = errors.appError != null,
                 supportingText = {
                     if (errors.appError != null) {

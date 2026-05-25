@@ -66,7 +66,9 @@ fun SheetSelector(
                         ExposedDropdownMenuDefaults.TrailingIcon(sheetListExpanded)
                     }
                 },
-                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
                 enabled = !isLoading && sheetList.isNotEmpty(),
                 isError = isError,
                 supportingText = {

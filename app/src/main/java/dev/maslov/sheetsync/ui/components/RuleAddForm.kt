@@ -144,7 +144,7 @@ fun RuleAddForm(
                     errors = errors.copy(tabError = null)
                 }
             },
-            onRefresh = tabSelectorUiState.onRefresh,
+            onRefresh = { selectedSheet?.let { tabSelectorUiState.onRefresh(it) } },
             enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty(),
             isError = errors.tabError != null,
             validationError = errors.tabError

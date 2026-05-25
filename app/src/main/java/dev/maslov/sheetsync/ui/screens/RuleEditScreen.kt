@@ -111,7 +111,7 @@ fun RuleEditScreen(
                     availableSheets,
                     isLoadingSheets,
                     loadingSheetsError,
-                    { /* No-op for edit form */ },
+                    { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id) },
                     { sheetsViewModel.refreshSheetList(forceUpdate = true) }
                 ),
                 tabSelectorUiState = TabSelectorUiState(

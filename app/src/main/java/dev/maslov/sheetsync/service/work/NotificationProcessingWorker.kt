@@ -143,7 +143,5 @@ class NotificationProcessingWorker @AssistedInject constructor(
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun String.isCreditTransaction(): Boolean {
-        return contains("Кред. ліміт")
-    }
+    private fun String.isCreditTransaction(): Boolean = contains("Кред. ліміт")
 }

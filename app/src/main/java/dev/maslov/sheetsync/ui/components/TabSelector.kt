@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.maslov.sheetsync.model.Sheet
-import dev.maslov.sheetsync.model.SheetMetadata
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,13 +37,13 @@ fun TabSelector(
     isLoading: Boolean,
     errorMessage: String?,
     onSelect: (Sheet) -> Unit,
-    onRefresh: (SheetMetadata) -> Unit,
+    onRefresh: () -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     validationError: String? = null
 ) {
-    var sheetListExpanded by remember { mutableStateOf(enabled) }
+    var sheetListExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -95,7 +94,7 @@ fun TabSelector(
         }
 
         IconButton(
-            onClick = { onRefresh },
+            onClick = onRefresh,
             enabled = enabled && !isLoading
         ) {
             Icon(

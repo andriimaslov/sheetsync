@@ -1,10 +1,9 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
 import android.util.Log
+import androidx.collection.SieveCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.maslov.sheetsync.model.Sheet
 import dev.maslov.sheetsync.model.SheetMetadata
@@ -15,7 +14,6 @@ import dev.maslov.sheetsync.service.googleapis.DriveService
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.token.AuthorizationManager
 import jakarta.inject.Inject
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,26 +33,20 @@ class SheetsViewModel @Inject constructor(
     private val _tabListUiState = MutableStateFlow<TabsListUiState>(TabsListUiState.Idle)
     val tabListUiState: StateFlow<TabsListUiState> = _tabListUiState.asStateFlow()
 
-    // In-memory cache for sheet list with TTL
-    private val sheetCache: Cache<String, List<SheetMetadata>> = Caffeine.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .maximumSize(1)
-        .build()
+    private val sheetCache = SieveCache<String, CachedValue<List<SheetMetadata>>>(1)
+    private val tabCache = SieveCache<String, CachedValue<List<Sheet>>>(50)
 
-    private val tabCache: Cache<String, List<Sheet>> = Caffeine.newBuilder()
-        .expireAfterWrite(10, TimeUnit.MINUTES)
-        .maximumSize(50)
-        .build()
+    private data class CachedValue<T>(val value: T, val timestamp: Long = System.currentTimeMillis())
 
     fun refreshSheetList(forceUpdate: Boolean = false) {
         viewModelScope.launch {
             _sheetListUiState.value = SheetListUiState.Loading
-
-            // Use cached data if available
-            val cached = sheetCache.getIfPresent(KEY_SHEETS)
-            if (cached != null && !forceUpdate) {
-                _sheetListUiState.value = SheetListUiState.Success(cached)
-                Log.d(TAG, "Using cached sheets (${cached.size} items)")
+            Log.d(TAG, "Refresh sheet list force = $forceUpdate")
+            // Use cached data if available and not expired
+            val cached = sheetCache[KEY_SHEETS]
+            if (cached != null && !forceUpdate && (System.currentTimeMillis() - cached.timestamp < SHEETS_TTL)) {
+                _sheetListUiState.value = SheetListUiState.Success(cached.value)
+                Log.d(TAG, "Using cached sheets (${cached.value.size} items)")
                 return@launch
             }
 
@@ -67,7 +59,7 @@ class SheetsViewModel @Inject constructor(
             val result = driveService.getAllSheets(accessToken)
             if (result.isSuccess) {
                 val sheets = result.getOrNull() ?: emptyList()
-                sheetCache.put(KEY_SHEETS, sheets)
+                sheetCache.put(KEY_SHEETS, CachedValue(sheets))
                 _sheetListUiState.value = SheetListUiState.Success(sheets)
                 Log.d(TAG, "Successfully fetched ${sheets.size} sheets (cache updated)")
             } else {
@@ -81,11 +73,12 @@ class SheetsViewModel @Inject constructor(
     fun fetchTabList(spreadsheetId: String, forceUpdate: Boolean = false) {
         viewModelScope.launch {
             _tabListUiState.value = TabsListUiState.Loading
-
-            // Use cached data if available
-            val cached = tabCache.getIfPresent(spreadsheetId)
-            if (cached != null && !forceUpdate) {
-                _tabListUiState.value = TabsListUiState.Success(cached)
+            Log.d(TAG, "Refresh tab list force = $forceUpdate")
+            // Use cached data if available and not expired
+            val cached = tabCache[spreadsheetId]
+            if (cached != null && !forceUpdate && (System.currentTimeMillis() - cached.timestamp < TABS_TTL)) {
+                // Return Success with the cached tabs for the requested ID
+                _tabListUiState.value = TabsListUiState.Success(cached.value)
                 Log.d(TAG, "Using cached tabs for $spreadsheetId")
                 return@launch
             }
@@ -99,7 +92,7 @@ class SheetsViewModel @Inject constructor(
             val result = sheetService.getSpreadsheetInfo(accessToken, spreadsheetId)
             if (result.isSuccess) {
                 val spreadsheet = result.getOrNull() ?: Spreadsheet()
-                tabCache.put(spreadsheetId, spreadsheet.sheets)
+                tabCache.put(spreadsheetId, CachedValue(spreadsheet.sheets))
                 _tabListUiState.value = TabsListUiState.Success(spreadsheet.sheets)
                 Log.d(TAG, "Successfully fetched ${spreadsheet.sheets.size} tabs for $spreadsheetId (cache updated)")
             } else {
@@ -113,5 +106,9 @@ class SheetsViewModel @Inject constructor(
     companion object {
         private const val TAG = "SheetsViewModel"
         private const val KEY_SHEETS = "all_sheets"
+
+        // TTL constants
+        private const val SHEETS_TTL = 5 * 60 * 1000L // 5 minutes
+        private const val TABS_TTL = 10 * 60 * 1000L // 10 minutes
     }
 }

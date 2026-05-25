@@ -90,7 +90,7 @@ dependencies {
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.caffeine)
+    implementation(libs.androidx.collection)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
