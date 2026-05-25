@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.maslov.sheetsync.MainActivity
@@ -20,6 +19,7 @@ import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -41,16 +41,11 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            val ruleJson = inputData.getString("ruleJson") ?: return@withContext Result.failure()
+            val ruleId = inputData.getString("ruleId") ?: ""
             val packageName = inputData.getString("pkg") ?: ""
             val notificationText = inputData.getString("text") ?: ""
 
-            val rule = try {
-                Gson().fromJson(ruleJson, Rule::class.java)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to deserialize rule JSON: ${e.message}")
-                return@withContext Result.failure()
-            }
+            val rule = ruleRepository.getRuleById(UUID.fromString(ruleId))
 
             Log.d(TAG, "Processing notification for rule=${rule.id}, package=$packageName, sheet=${rule.sheetId}")
 

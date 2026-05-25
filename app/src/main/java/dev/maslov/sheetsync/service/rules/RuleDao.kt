@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import dev.maslov.sheetsync.model.Rule
+import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,4 +26,7 @@ interface RuleDao {
 
     @Delete
     suspend fun deleteRule(rule: Rule)
+
+    @Query("SELECT * FROM rules WHERE id=:uuid")
+    suspend fun getRuleById(uuid: UUID): Rule
 }

@@ -5,10 +5,6 @@ import com.google.gson.JsonObject
 import dev.maslov.sheetsync.model.SheetMetadata
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
@@ -25,29 +21,11 @@ interface GoogleDriveApi {
 }
 
 @Singleton
-class DriveService @Inject constructor() {
-    private val retrofit: Retrofit by lazy {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
-        }
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
-
-        Retrofit.Builder()
-            .baseUrl("https://www.googleapis.com/")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    private val api: GoogleDriveApi by lazy {
-        retrofit.create(GoogleDriveApi::class.java)
-    }
+class DriveService @Inject constructor(private val driveApi: GoogleDriveApi) {
 
     suspend fun getAllSheets(accessToken: String): Result<List<SheetMetadata>> = runCatching {
         val query = "mimeType='application/vnd.google-apps.spreadsheet' and trashed=false"
-        val response = api.listFiles(
+        val response = driveApi.listFiles(
             authorization = "Bearer $accessToken",
             query = query
         )

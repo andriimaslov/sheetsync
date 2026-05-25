@@ -201,7 +201,7 @@ class AuthorizationManager(
 
             Log.d(
                 ContentValues.TAG,
-                "Token exchange successful: accessToken=${response.accessToken}, refreshToken=${response.refreshToken}"
+                "Token exchange successful"
             )
 
             oAuthCredManager.saveToken(response.accessToken, response.refreshToken, response.expiresIn)

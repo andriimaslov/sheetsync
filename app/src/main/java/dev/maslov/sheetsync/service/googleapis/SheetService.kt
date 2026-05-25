@@ -6,10 +6,6 @@ import dev.maslov.sheetsync.model.SheetsValueRange
 import dev.maslov.sheetsync.model.Spreadsheet
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -37,25 +33,7 @@ interface GoogleSheetsApi {
 }
 
 @Singleton
-class SheetService @Inject constructor() {
-    private val retrofit: Retrofit by lazy {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
-        }
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
-
-        Retrofit.Builder()
-            .baseUrl("https://sheets.googleapis.com/")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    private val api: GoogleSheetsApi by lazy {
-        retrofit.create(GoogleSheetsApi::class.java)
-    }
+class SheetService @Inject constructor(private val sheetsApi: GoogleSheetsApi) {
 
     /**
      * Appends a single row of data to the end of the specified sheet.
@@ -84,7 +62,7 @@ class SheetService @Inject constructor() {
             values = listOf(rowData)
         )
 
-        val response = api.appendRow(
+        val response = sheetsApi.appendRow(
             authorization = "Bearer $accessToken",
             spreadsheetId = spreadsheetId,
             range = range,
@@ -130,7 +108,7 @@ class SheetService @Inject constructor() {
         require(accessToken.isNotBlank()) { "Access token cannot be blank" }
         require(spreadsheetId.isNotBlank()) { "Spreadsheet ID cannot be blank" }
 
-        val response = api.getSpreadsheetInfo(
+        val response = sheetsApi.getSpreadsheetInfo(
             authorization = "Bearer $accessToken",
             spreadsheetId = spreadsheetId,
             includeGridData = includeGridData

@@ -10,7 +10,6 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
@@ -73,9 +72,8 @@ class NotificationListener : NotificationListenerService() {
         if (matchedRule != null) {
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
             // Enqueue background work to process and append the row. WorkManager will handle retries.
-            val ruleJson = Gson().toJson(matchedRule)
             val workData = workDataOf(
-                "ruleJson" to ruleJson,
+                "ruleId" to matchedRule.id.toString(),
                 "pkg" to packageName,
                 "text" to notificationText
             )
