@@ -62,6 +62,11 @@ class NotificationProcessingWorker @AssistedInject constructor(
                 return@withContext Result.failure()
             }
 
+            if (notificationText.isCreditTransaction()) {
+                Log.d(TAG, "Skipping credit limit transaction notification")
+                return@withContext Result.success()
+            }
+
             val parser = parsers[rule.parser]
             if (parser == null) {
                 Log.e(TAG, "Unknown parser id=${rule.parser} for rule=${rule.id}")
@@ -136,5 +141,9 @@ class NotificationProcessingWorker @AssistedInject constructor(
             .build()
 
         notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun String.isCreditTransaction(): Boolean {
+        return contains("Кред. ліміт")
     }
 }
