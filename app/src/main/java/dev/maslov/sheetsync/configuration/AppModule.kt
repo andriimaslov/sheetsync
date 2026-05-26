@@ -39,14 +39,14 @@ object AppModule {
 
     @Provides
     fun provideGoogleAuthClient(@ApplicationContext applicationContext: Context): GoogleAuthClient =
-        GoogleAuthClient(applicationContext, BuildConfig.OAUTH_CLIENT_ID)
+        GoogleAuthClient(applicationContext, BuildConfig.G_OAUTH_CLIENT_ID)
 
     @Provides
     fun provideGoogleSheetsAuthorizationManager(
         @ApplicationContext context: Context,
         oAuthCredManager: OAuthCredManager,
         authRequirementManager: AuthRequirementManager
-    ) = AuthorizationManager(context, BuildConfig.OAUTH_CLIENT_ID, oAuthCredManager, authRequirementManager)
+    ) = AuthorizationManager(context, BuildConfig.G_OAUTH_CLIENT_ID, oAuthCredManager, authRequirementManager)
 
     @Provides
     fun providesWorkManager(@ApplicationContext context: Context): WorkManager = WorkManager.getInstance(context)
