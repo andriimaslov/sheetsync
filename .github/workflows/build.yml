@@ -25,8 +25,8 @@ jobs:
         run: chmod +x gradlew
 
       - name: Create local.properties
-        run: |
-          echo "G_AUTH_CLIENT_ID=${{ secrets.G_AUTH_CLIENT_ID }}" >> local.properties
+        run:
+          echo "G_OAUTH_CLIENT_ID=${{ secrets.G_OAUTH_CLIENT_ID }}" >> local.properties
 
       - name: Run Spotless Check
         run: ./gradlew spotlessCheck
@@ -56,6 +56,10 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Create local.properties
+        run:
+          echo "G_OAUTH_CLIENT_ID=${{ secrets.G_OAUTH_CLIENT_ID }}" >> local.properties
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
