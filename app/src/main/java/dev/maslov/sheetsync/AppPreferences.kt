@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 @Singleton
-@Suppress("ktlint:standard:property-naming")
 class AppPreferences @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val Context.dataStore by preferencesDataStore(

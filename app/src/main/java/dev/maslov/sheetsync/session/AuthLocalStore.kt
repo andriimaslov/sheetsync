@@ -12,13 +12,15 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-@Suppress("ktlint:standard:property-naming")
 class AuthLocalStore @Inject constructor(@ApplicationContext private val context: Context) {
     private val Context.authDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
-    private val KEY_USER_ID = stringPreferencesKey("user_id")
-    private val KEY_USER_EMAIL = stringPreferencesKey("user_email")
-    private val KEY_USER_NAME = stringPreferencesKey("user_name")
-    private val KEY_USER_PROFILE_PIC = stringPreferencesKey("user_profile_pic")
+
+    companion object {
+        private val KEY_USER_ID = stringPreferencesKey("user_id")
+        private val KEY_USER_EMAIL = stringPreferencesKey("user_email")
+        private val KEY_USER_NAME = stringPreferencesKey("user_name")
+        private val KEY_USER_PROFILE_PIC = stringPreferencesKey("user_profile_pic")
+    }
 
     suspend fun saveUser(user: AuthUser) {
         context.authDataStore.edit { preferences ->
