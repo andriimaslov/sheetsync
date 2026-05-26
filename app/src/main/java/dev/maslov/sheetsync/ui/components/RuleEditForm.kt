@@ -59,15 +59,12 @@ fun RuleEditForm(
     }
     var isActive by remember { mutableStateOf(rule.isActive) }
 
-    // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf(appList.find { it.packageName == rule.appId }) }
     var selectedParser by remember { mutableStateOf(parserList.find { it.name == rule.parser }) }
 
-    // Validation state
     var errors by remember { mutableStateOf(FormFieldErrors()) }
 
-    // Validation function - for edit form, pre-filled values are considered valid
     fun validate(): Boolean {
         val newErrors = FormFieldErrors(
             titleError = if (!ValidationHelper.isStringValid(title)) ValidationHelper.TITLE_REQUIRED else null,
@@ -85,7 +82,6 @@ fun RuleEditForm(
             sheetSelectorState.sheets.find { it.id == rule.sheetId }?.let {
                 selectedSheet = it
                 sheetSelectorState.onSelect(it)
-                // Clear error when user selects
                 if (errors.sheetError != null) {
                     errors = errors.copy(sheetError = null)
                 }
@@ -98,7 +94,6 @@ fun RuleEditForm(
             tabSelectorUiState.tabs.find { it.properties.title == rule.tabName }?.let {
                 selectedTab = it
                 tabSelectorUiState.onSelect(it)
-                // Clear error when user selects
                 if (errors.tabError != null) {
                     errors = errors.copy(tabError = null)
                 }
@@ -116,7 +111,6 @@ fun RuleEditForm(
             value = title,
             onValueChange = {
                 title = it
-                // Clear error when user starts typing
                 if (errors.titleError != null && title.isNotBlank()) {
                     errors = errors.copy(titleError = null)
                 }
@@ -136,7 +130,6 @@ fun RuleEditForm(
             selectedParser = selectedParser,
             onSelect = { parser ->
                 selectedParser = parser
-                // Clear error when user selects
                 if (errors.parserError != null) {
                     errors = errors.copy(parserError = null)
                 }
@@ -153,7 +146,6 @@ fun RuleEditForm(
             onSelect = { sheet ->
                 selectedSheet = sheet
                 sheetSelectorState.onSelect(sheet)
-                // Clear error when user selects
                 if (errors.sheetError != null) {
                     errors = errors.copy(sheetError = null)
                 }
@@ -171,7 +163,6 @@ fun RuleEditForm(
             onSelect = { tab ->
                 selectedTab = tab
                 tabSelectorUiState.onSelect(tab)
-                // Clear error when user selects
                 if (errors.tabError != null) {
                     errors = errors.copy(tabError = null)
                 }
@@ -186,7 +177,6 @@ fun RuleEditForm(
             expanded = appListExpanded,
             onExpandedChange = { appListExpanded = !appListExpanded }
         ) {
-            // The TextField that acts as the trigger
             OutlinedTextField(
                 value = selectedApp?.name ?: "Select an app",
                 onValueChange = {},
@@ -205,7 +195,6 @@ fun RuleEditForm(
                 }
             )
 
-            // The actual menu that pops up
             ExposedDropdownMenu(
                 expanded = appListExpanded,
                 onDismissRequest = { appListExpanded = false }
@@ -218,13 +207,12 @@ fun RuleEditForm(
                         onClick = {
                             selectedApp = app
                             appListExpanded = false
-                            // Clear error when user selects
+
                             if (errors.appError != null) {
                                 errors = errors.copy(appError = null)
                             }
                         },
                         leadingIcon = {
-                            // Using Coil to display the app icon
                             AsyncImage(
                                 model = app.icon,
                                 contentDescription = null,

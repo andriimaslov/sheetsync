@@ -37,7 +37,6 @@ class SheetsViewModel @Inject constructor(
         viewModelScope.launch {
             _sheetListUiState.value = SheetListUiState.Loading
             Log.d(TAG, "Refresh sheet list force = $forceUpdate")
-            // Use cached data if available and not expired
             val cached = sheetRepository.getSheetCache()[KEY_SHEETS]
             if (cached != null && !forceUpdate && cached.isSheetExpired()) {
                 _sheetListUiState.value = SheetListUiState.Success(cached.value)
@@ -69,10 +68,8 @@ class SheetsViewModel @Inject constructor(
         viewModelScope.launch {
             _tabListUiState.value = TabsListUiState.Loading
             Log.d(TAG, "Refresh tab list force = $forceUpdate")
-            // Use cached data if available and not expired
             val cached = sheetRepository.getTabCache()[spreadsheetId]
             if (cached != null && !forceUpdate && cached.isTabExpired()) {
-                // Return Success with the cached tabs for the requested ID
                 _tabListUiState.value = TabsListUiState.Success(cached.value)
                 Log.d(TAG, "Using cached tabs for $spreadsheetId")
                 return@launch

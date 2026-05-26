@@ -53,7 +53,6 @@ class SheetService @Inject constructor(private val sheetsApi: GoogleSheetsApi) {
     ): Result<AppendResponse> = runCatching {
         Log.d(TAG, "Appending row with ${rowData.size} columns to sheet '$range' in spreadsheet $spreadsheetId")
 
-        // Validate input
         require(rowData.isNotEmpty()) { "Row data cannot be empty" }
         require(accessToken.isNotBlank()) { "Access token cannot be blank" }
         require(spreadsheetId.isNotBlank()) { "Spreadsheet ID cannot be blank" }
@@ -74,11 +73,9 @@ class SheetService @Inject constructor(private val sheetsApi: GoogleSheetsApi) {
             throw RuntimeException("API call failed: ${response.code()} ${response.message()}, body: $errorBody")
         }
 
-        // Get the parsed response body (Retrofit handles JSON parsing automatically)
         val appendResponse = response.body()
             ?: throw RuntimeException("Empty response body")
 
-        // Validate the response has the expected spreadsheet ID
         if (appendResponse.spreadsheetId != spreadsheetId) {
             Log.w(TAG, "Response spreadsheet ID mismatch: expected $spreadsheetId, got ${appendResponse.spreadsheetId}")
         }
@@ -87,7 +84,7 @@ class SheetService @Inject constructor(private val sheetsApi: GoogleSheetsApi) {
         appendResponse
     }.onFailure { exception ->
         Log.e(TAG, "Error appending row to sheet: ${exception.message}", exception)
-        throw exception // Re-throw to maintain Result.failure behavior
+        throw exception
     }
 
     /**

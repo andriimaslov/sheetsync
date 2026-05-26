@@ -50,7 +50,6 @@ fun RuleEditScreen(
     val rule = rules.find { it.id == ruleId }
     val parserList by parserViewModel.parsers.collectAsState()
 
-    // Extract sheet data from driveUiState
     val availableSheets = when (val state = sheetListUiState) {
         is SheetListUiState.Success -> state.sheets
         else -> emptyList()
@@ -77,7 +76,6 @@ fun RuleEditScreen(
         authViewModel.onSheetsResolutionResult(result.data)
     }
 
-    // Refresh sheets on mount
     LaunchedEffect(Unit) {
         sheetsViewModel.refreshSheetList()
         authViewModel.resolutionTrigger.collect { intentSender ->

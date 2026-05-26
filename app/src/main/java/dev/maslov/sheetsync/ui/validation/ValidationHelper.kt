@@ -4,7 +4,6 @@ package dev.maslov.sheetsync.ui.validation
  * Reusable validation helper functions for forms
  */
 object ValidationHelper {
-    // Error messages - using string constants for potential future localization
     const val TITLE_REQUIRED = "Title is required"
     const val PARSER_REQUIRED = "Please select a parser type"
     const val SHEET_REQUIRED = "Please select a sheet"

@@ -50,7 +50,6 @@ fun AddRuleScreen(
     val tabsListUiState by sheetsViewModel.tabListUiState.collectAsState()
     val parserList by parserViewModel.parsers.collectAsState()
 
-    // Extract sheet data from driveUiState
     val availableSheets = when (val state = sheetListUiState) {
         is SheetListUiState.Success -> state.sheets
         else -> emptyList()
@@ -77,7 +76,6 @@ fun AddRuleScreen(
         authViewModel.onSheetsResolutionResult(result.data)
     }
 
-    // Refresh sheets on mount
     LaunchedEffect(Unit) {
         sheetsViewModel.refreshSheetList()
         authViewModel.resolutionTrigger.collect { intentSender ->

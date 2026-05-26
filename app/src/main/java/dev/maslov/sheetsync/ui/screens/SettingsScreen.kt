@@ -69,14 +69,12 @@ fun SettingsScreen(
     val authState by authViewModel.authState.collectAsState()
     val credentialsUiState by credentialsViewModel.uiState.collectAsState()
 
-    // Launcher for OAuth resolution popup
     val oauthLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         authViewModel.onSheetsResolutionResult(result.data)
     }
 
-    // Collect OAuth resolution trigger and launch the popup
     LaunchedEffect(Unit) {
         authViewModel.resolutionTrigger.collect { intentSender ->
             oauthLauncher.launch(
@@ -85,7 +83,6 @@ fun SettingsScreen(
         }
     }
 
-    // Refresh permission status when screen resumes/becomes visible
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(object : androidx.lifecycle.LifecycleEventObserver {
             override fun onStateChanged(source: androidx.lifecycle.LifecycleOwner, event: Lifecycle.Event) {
@@ -115,7 +112,6 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Account Section
             Text(
                 text = "Account",
                 style = MaterialTheme.typography.titleMedium,
@@ -123,7 +119,6 @@ fun SettingsScreen(
             )
 
             if (authState.isLoggedIn && authState.user != null) {
-                // User Info Card
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -137,7 +132,6 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Profile Picture
                         if (authState.user?.profilePicUrl != null) {
                             AsyncImage(
                                 model = authState.user?.profilePicUrl,
@@ -195,7 +189,6 @@ fun SettingsScreen(
                     }
                 }
             } else {
-                // Not logged in message
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -216,7 +209,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Notification Permission Section
             Text(
                 text = "Notifications",
                 style = MaterialTheme.typography.titleMedium,
@@ -295,7 +287,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Client Credentials Section
             ClientCredentialsForm(
                 uiState = credentialsUiState,
                 onClientIdChange = { credentialsViewModel.updateClientId(it) },
@@ -308,7 +299,6 @@ fun SettingsScreen(
 
             val channelId = "CHANNEL_ID"
 
-            // 2. Permission Launcher
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission()
             ) { isGranted ->
@@ -341,7 +331,7 @@ fun SettingsScreen(
 @RequiresPermission("android.permission.POST_NOTIFICATIONS")
 private fun showSimpleNotification(context: Context, channelId: String) {
     val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(android.R.drawable.ic_dialog_info) // Use your own icon here
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
         .setContentTitle("New Message")
         .setContentText(
             """
@@ -354,7 +344,6 @@ private fun showSimpleNotification(context: Context, channelId: String) {
         .setAutoCancel(true)
 
     with(NotificationManagerCompat.from(context)) {
-        // NotificationId is a unique int for each notification
         notify(101, builder.build())
     }
 }

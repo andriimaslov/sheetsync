@@ -52,7 +52,6 @@ fun SignInWithGooglePage(authViewModel: AuthViewModel, onLoginSuccess: () -> Uni
 
         if (authState.isLoggedIn && authState.user != null) {
             onLoginSuccess()
-            // User Info Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,7 +65,6 @@ fun SignInWithGooglePage(authViewModel: AuthViewModel, onLoginSuccess: () -> Uni
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Profile Picture
                     if (authState.user?.profilePicUrl != null) {
                         AsyncImage(
                             model = authState.user?.profilePicUrl,
@@ -134,23 +132,6 @@ fun SignInWithGooglePage(authViewModel: AuthViewModel, onLoginSuccess: () -> Uni
             ) {
                 Text("Login with Google")
             }
-            // Not logged in message
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(
-//                        color = MaterialTheme.colorScheme.errorContainer,
-//                        shape = MaterialTheme.shapes.medium
-//                    )
-//                    .padding(16.dp),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "Not logged in",
-//                    style = MaterialTheme.typography.bodySmall,
-//                    color = MaterialTheme.colorScheme.error
-//                )
-//            }
         }
     }
 }

@@ -8,21 +8,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 
 @Singleton
 class OAuthCredManager @Inject constructor(private val dataStore: DataStore<OAuthConfiguration>) {
 
-    // Expose the entire state reactively
     val credentialsFlow: Flow<OAuthConfiguration> = dataStore.data
-
-    // Check if BYOC setup is complete
-    val isConfiguredFlow: Flow<Boolean> = dataStore.data.map {
-        !it.oAuthCreds?.clientId.isNullOrBlank() && it.oAuthCreds.clientSecret.isNotBlank()
-    }
-
-    // Single-shot read for network interceptors
-    suspend fun getCredentialsSync(): OAuthConfiguration = dataStore.data.first()
 
     suspend fun getTokenSync(): OAuthToken? = dataStore.data.first().oAuthToken
 

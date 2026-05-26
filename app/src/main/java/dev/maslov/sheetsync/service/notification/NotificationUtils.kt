@@ -13,7 +13,6 @@ import kotlinx.coroutines.withContext
 suspend fun fetchAppsWithNotifications(context: Context): List<AppModel> = withContext(Dispatchers.IO) {
     val pm = context.packageManager
 
-    // Use modern long-based flags
     val flags = PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
     val allApps = pm.getInstalledApplications(flags)
 

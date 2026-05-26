@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.androidx.datastore.tink)
     implementation(libs.tink.android)
 
-    // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.collection)
 

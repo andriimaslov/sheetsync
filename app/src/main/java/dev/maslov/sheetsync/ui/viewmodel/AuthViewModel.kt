@@ -30,7 +30,6 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow(AuthState())
     val authState = _authState.asStateFlow()
 
-    // A "Side Effect" flow to trigger the Google Sheets popup in the Activity
     private val _resolutionTrigger = Channel<IntentSender>(Channel.BUFFERED)
     val resolutionTrigger = _resolutionTrigger.receiveAsFlow()
 
@@ -96,12 +95,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authorizationManager.authorize()) {
                 is TokenAuthResult.AuthCode -> {
-                    // If the user already granted permission, go straight to exchange
                     Log.d(TAG, "Authorization successful, got auth code: ${result.code}")
                     authorizationManager.exchangeCodeForTokens(result.code)
                 }
                 is TokenAuthResult.NeedsResolution -> {
-                    // If we need a popup, stop loading and signal the UI
                     Log.d(TAG, "Authorization requires resolution, sending intent sender to UI")
                     _authState.update { it.copy(isLoading = false) }
                     _resolutionTrigger.send(result.intentSender)
@@ -118,7 +115,6 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    // Called by the Activity/Fragment after the resolution popup finishes
     fun onSheetsResolutionResult(data: Intent?) {
         viewModelScope.launch {
             _authState.update { it.copy(isLoading = true) }

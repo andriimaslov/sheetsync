@@ -152,7 +152,6 @@ class AuthorizationManager(
             return token.accessToken
         }
 
-        // Token is expired, try to refresh
         val refreshToken = token.refreshToken
         if (refreshToken == null) {
             Log.w(TAG, "Token expired and no refresh token available")

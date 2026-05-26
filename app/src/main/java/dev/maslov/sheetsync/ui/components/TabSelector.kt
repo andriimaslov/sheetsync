@@ -104,7 +104,6 @@ fun TabSelector(
         }
     }
 
-    // Error message
     if (errorMessage != null) {
         Text(
             text = errorMessage,

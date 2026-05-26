@@ -48,7 +48,6 @@ class NotificationListener : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "NotificationListener service created")
-        // Collect active rules in the background
         scope.launch {
             repository.rules.collect { rules ->
                 activeRules = rules.filter { it.isActive }
@@ -64,14 +63,12 @@ class NotificationListener : NotificationListenerService() {
         Log.d(TAG, "Notification posted from package: $packageName")
         Log.d(TAG, "Currently tracking ${activeRules.size} active rules")
 
-        // Check if notification is from an app in active rules
         val matchedRule = activeRules.find { it.appId == packageName }
         val extras = sbn.notification.extras
         val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
 
         if (matchedRule != null) {
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
-            // Enqueue background work to process and append the row. WorkManager will handle retries.
             val workData = workDataOf(
                 "ruleId" to matchedRule.id.toString(),
                 "pkg" to packageName,

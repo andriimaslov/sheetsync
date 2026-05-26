@@ -36,14 +36,12 @@ fun ClientCredentialsForm(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        // Header
         Text(
             text = "API Credentials",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Status indicator
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,7 +84,6 @@ fun ClientCredentialsForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Client ID Input
         TextField(
             value = uiState.clientId,
             onValueChange = onClientIdChange,
@@ -98,7 +95,6 @@ fun ClientCredentialsForm(
             shape = MaterialTheme.shapes.small
         )
 
-        // Client Secret Input with toggle
         TextField(
             value = uiState.clientSecret,
             onValueChange = onClientSecretChange,
@@ -124,7 +120,6 @@ fun ClientCredentialsForm(
             }
         )
 
-        // Error message
         if (uiState.errorMessage != null) {
             Text(
                 text = uiState.errorMessage,
@@ -136,7 +131,6 @@ fun ClientCredentialsForm(
             )
         }
 
-        // Action Buttons
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {

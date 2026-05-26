@@ -53,15 +53,12 @@ fun RuleAddForm(
     var selectedTab: Sheet? by remember { mutableStateOf(null) }
     var isActive by remember { mutableStateOf(false) }
 
-    // app dropdown state
     var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
 
-    // Validation state
     var errors by remember { mutableStateOf(FormFieldErrors()) }
 
-    // Validation function
     fun validate(): Boolean {
         val newErrors = FormFieldErrors(
             titleError = if (!ValidationHelper.isStringValid(title)) ValidationHelper.TITLE_REQUIRED else null,
@@ -84,7 +81,7 @@ fun RuleAddForm(
             value = title,
             onValueChange = {
                 title = it
-                // Clear error when user starts typing
+
                 if (errors.titleError != null && title.isNotBlank()) {
                     errors = errors.copy(titleError = null)
                 }
@@ -104,7 +101,7 @@ fun RuleAddForm(
             selectedParser = selectedParser,
             onSelect = { parser ->
                 selectedParser = parser
-                // Clear error when user selects
+
                 if (errors.parserError != null) {
                     errors = errors.copy(parserError = null)
                 }
@@ -121,7 +118,7 @@ fun RuleAddForm(
             onSelect = { sheet ->
                 selectedSheet = sheet
                 sheetSelectorState.onSelect(sheet)
-                // Clear error when user selects
+
                 if (errors.sheetError != null) {
                     errors = errors.copy(sheetError = null)
                 }
@@ -139,7 +136,7 @@ fun RuleAddForm(
             onSelect = { tab ->
                 selectedTab = tab
                 tabSelectorUiState.onSelect(tab)
-                // Clear error when user selects
+
                 if (errors.tabError != null) {
                     errors = errors.copy(tabError = null)
                 }
@@ -154,7 +151,6 @@ fun RuleAddForm(
             expanded = appListExpanded,
             onExpandedChange = { appListExpanded = !appListExpanded }
         ) {
-            // The TextField that acts as the trigger
             OutlinedTextField(
                 value = selectedApp?.name ?: "Select an app",
                 onValueChange = {},
@@ -173,7 +169,6 @@ fun RuleAddForm(
                 }
             )
 
-            // The actual menu that pops up
             ExposedDropdownMenu(
                 expanded = appListExpanded,
                 onDismissRequest = { appListExpanded = false }
@@ -186,13 +181,12 @@ fun RuleAddForm(
                         onClick = {
                             selectedApp = app
                             appListExpanded = false
-                            // Clear error when user selects
+
                             if (errors.appError != null) {
                                 errors = errors.copy(appError = null)
                             }
                         },
                         leadingIcon = {
-                            // Using Coil to display the app icon
                             AsyncImage(
                                 model = app.icon,
                                 contentDescription = null,

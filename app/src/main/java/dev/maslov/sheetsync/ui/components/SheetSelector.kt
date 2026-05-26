@@ -105,7 +105,6 @@ fun SheetSelector(
         }
     }
 
-    // Error message
     if (errorMessage != null) {
         Text(
             text = errorMessage,

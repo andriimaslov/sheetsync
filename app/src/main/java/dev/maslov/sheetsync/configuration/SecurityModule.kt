@@ -39,7 +39,6 @@ object SecurityModule {
         val secureSerializer = AeadSerializer(
             aead = aead,
             wrappedSerializer = AppCredentialsSerializer,
-            // Custom context-string to prevent "Key Substitution" attacks
             associatedData = "auth_context_v1".encodeToByteArray()
         )
 
