@@ -246,7 +246,7 @@ fun RuleEditForm(
         HorizontalDivider()
 
         Text("Last Run Status: ${rule.lastRunStatus}")
-        Text("Last Run At: ${rule.createdAt.toLocalDate()}")
+        Text("Last Run At: ${rule.lastRunAt?.toLocalDate()}")
 
         Spacer(modifier = Modifier.weight(1f))
 
