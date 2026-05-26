@@ -46,6 +46,10 @@ android {
     buildToolsVersion = "36.0.0"
 }
 
+base {
+    archivesName.set("sheetsync")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
