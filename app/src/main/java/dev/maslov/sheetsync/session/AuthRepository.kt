@@ -1,8 +1,14 @@
 package dev.maslov.sheetsync.session
 
 import dev.maslov.sheetsync.model.AuthUser
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
-class AuthRepository(private val googleAuthClient: GoogleAuthClient, private val localStore: AuthLocalStore) {
+@Singleton
+class AuthRepository @Inject constructor(
+    private val googleAuthClient: GoogleAuthClient,
+    private val localStore: AuthLocalStore
+) {
 
     suspend fun signIn(): Result<AuthUser> = runCatching {
         val user = googleAuthClient.signIn()

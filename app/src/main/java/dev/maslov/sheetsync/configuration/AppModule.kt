@@ -12,14 +12,10 @@ import dev.maslov.sheetsync.BuildConfig
 import dev.maslov.sheetsync.service.googleapis.GoogleDriveApi
 import dev.maslov.sheetsync.service.googleapis.GoogleSheetsApi
 import dev.maslov.sheetsync.service.rules.RuleDao
-import dev.maslov.sheetsync.service.rules.RuleRepository
 import dev.maslov.sheetsync.service.token.AuthorizationManager
-import dev.maslov.sheetsync.session.AuthLocalStore
-import dev.maslov.sheetsync.session.AuthRepository
 import dev.maslov.sheetsync.session.AuthRequirementManager
 import dev.maslov.sheetsync.session.GoogleAuthClient
 import dev.maslov.sheetsync.session.OAuthCredManager
-import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -42,19 +38,8 @@ object AppModule {
     fun provideRuleDao(db: SheetSyncDB): RuleDao = db.ruleDao()
 
     @Provides
-    fun provideRepository(dao: RuleDao): RuleRepository = RuleRepository(dao)
-
-    @Provides
-    @Singleton
-    fun provideAuthRepository(googleAuthClient: GoogleAuthClient, localStore: AuthLocalStore): AuthRepository =
-        AuthRepository(googleAuthClient, localStore)
-
-    @Provides
     fun provideGoogleAuthClient(@ApplicationContext applicationContext: Context): GoogleAuthClient =
         GoogleAuthClient(applicationContext, BuildConfig.OAUTH_CLIENT_ID)
-
-    @Provides
-    fun provideRuleViewModel(repository: RuleRepository) = RuleViewModel(repository)
 
     @Provides
     fun provideGoogleSheetsAuthorizationManager(
