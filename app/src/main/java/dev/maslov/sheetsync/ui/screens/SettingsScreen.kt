@@ -297,58 +297,58 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            val channelId = "CHANNEL_ID"
-
-            val permissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                if (isGranted) {
-                    showSimpleNotification(context, channelId)
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Button(
-                    onClick = {
-                        when (PackageManager.PERMISSION_GRANTED) {
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) -> {
-                                showSimpleNotification(context, channelId)
-                            }
-                            else -> {
-                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                        }
-                    },
-                    enabled = !authState.isLoading
-                ) {
-                    Text(if (authState.isLoading) "Authorizing..." else "Fire auth")
-                }
-            }
-            Button(
-                onClick = { authViewModel.clearToken() }
-            ) {
-                Text("clear token")
-            }
+//            val channelId = "CHANNEL_ID"
+//
+//            val permissionLauncher = rememberLauncherForActivityResult(
+//                contract = ActivityResultContracts.RequestPermission()
+//            ) { isGranted ->
+//                if (isGranted) {
+//                    showSimpleNotification(context, channelId)
+//                }
+//            }
+//
+//            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                Button(
+//                    onClick = {
+//                        when (PackageManager.PERMISSION_GRANTED) {
+//                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) -> {
+//                                showSimpleNotification(context, channelId)
+//                            }
+//                            else -> {
+//                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//                            }
+//                        }
+//                    },
+//                    enabled = !authState.isLoading
+//                ) {
+//                    Text(if (authState.isLoading) "Authorizing..." else "Fire auth")
+//                }
+//            }
+//            Button(
+//                onClick = { authViewModel.clearToken() }
+//            ) {
+//                Text("clear token")
+//            }
         }
     }
 }
 
-@RequiresPermission("android.permission.POST_NOTIFICATIONS")
-private fun showSimpleNotification(context: Context, channelId: String) {
-    val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(android.R.drawable.ic_dialog_info)
-        .setContentTitle("New Message")
-        .setContentText(
-            """
-            ПриватБанк: -99% Цифрові товари. Youtube premium
-            1234 22:10
-            Бал. 1111.00 грн
-            """.trimIndent()
-        )
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setAutoCancel(true)
-
-    with(NotificationManagerCompat.from(context)) {
-        notify(101, builder.build())
-    }
-}
+//@RequiresPermission("android.permission.POST_NOTIFICATIONS")
+//private fun showSimpleNotification(context: Context, channelId: String) {
+//    val builder = NotificationCompat.Builder(context, channelId)
+//        .setSmallIcon(android.R.drawable.ic_dialog_info)
+//        .setContentTitle("New Message")
+//        .setContentText(
+//            """
+//            ПриватБанк: -99% Цифрові товари. Youtube premium
+//            1234 22:10
+//            Бал. 1111.00 грн
+//            """.trimIndent()
+//        )
+//        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//        .setAutoCancel(true)
+//
+//    with(NotificationManagerCompat.from(context)) {
+//        notify(101, builder.build())
+//    }
+//}
