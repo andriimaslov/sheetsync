@@ -52,7 +52,11 @@ fun TabSelector(
     ) {
         ExposedDropdownMenuBox(
             expanded = sheetListExpanded,
-            onExpandedChange = { sheetListExpanded = !sheetListExpanded },
+            onExpandedChange = {
+                if (enabled && !isLoading && tabList.isNotEmpty()) {
+                    sheetListExpanded = !sheetListExpanded
+                }
+            },
             modifier = Modifier.weight(1f)
         ) {
             OutlinedTextField(
@@ -68,7 +72,7 @@ fun TabSelector(
                     }
                 },
                 modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                enabled = enabled && !isLoading && tabList.isNotEmpty(),
+                enabled = enabled,
                 isError = isError,
                 supportingText = {
                     if (validationError != null) {

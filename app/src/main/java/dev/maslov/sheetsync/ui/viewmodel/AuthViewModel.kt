@@ -89,8 +89,6 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun isLoggedIn(): Boolean = _authState.value.isLoggedIn
-
     fun beginSheetsAuthorization() {
         viewModelScope.launch {
             when (val result = authorizationManager.authorize()) {
@@ -106,10 +104,12 @@ class AuthViewModel @Inject constructor(
                 is TokenAuthResult.Error -> {
                     Log.d(TAG, "Authorization failed: ${result.throwable.message}")
                     _authState.update { it.copy(isLoading = false, error = result.throwable.message) }
+                    authorizationManager.resetAuthRequirement()
                 }
                 TokenAuthResult.Cancelled -> {
                     Log.d(TAG, "Authorization cancelled")
                     _authState.update { it.copy(isLoading = false) }
+                    authorizationManager.resetAuthRequirement()
                 }
             }
         }
@@ -128,13 +128,22 @@ class AuthViewModel @Inject constructor(
                 is TokenAuthResult.Error -> {
                     Log.d(TAG, "Authorization resolution failed: ${result.throwable.message}")
                     _authState.update { it.copy(isLoading = false, error = result.throwable.message) }
+                    authorizationManager.resetAuthRequirement()
                 }
 
                 else -> {
                     Log.d(TAG, "Authorization resolution cancelled or unexpected result")
                     _authState.update { it.copy(isLoading = false) }
+                    authorizationManager.resetAuthRequirement()
                 }
             }
         }
     }
+
+    fun clearToken() {
+        viewModelScope.launch {
+            authorizationManager.clearToken()
+        }
+    }
 }
+

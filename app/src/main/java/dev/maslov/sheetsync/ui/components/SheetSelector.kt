@@ -51,7 +51,11 @@ fun SheetSelector(
     ) {
         ExposedDropdownMenuBox(
             expanded = sheetListExpanded,
-            onExpandedChange = { sheetListExpanded = !sheetListExpanded },
+            onExpandedChange = {
+                if (!isLoading && sheetList.isNotEmpty()) {
+                    sheetListExpanded = !sheetListExpanded
+                }
+            },
             modifier = Modifier.weight(1f)
         ) {
             OutlinedTextField(
@@ -69,7 +73,7 @@ fun SheetSelector(
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     .fillMaxWidth(),
-                enabled = !isLoading && sheetList.isNotEmpty(),
+                enabled = true,
                 isError = isError,
                 supportingText = {
                     if (validationError != null) {

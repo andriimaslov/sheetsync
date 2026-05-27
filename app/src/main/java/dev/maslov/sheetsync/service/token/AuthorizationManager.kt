@@ -207,6 +207,15 @@ class AuthorizationManager(
             authRequirementManager.resetAuthRequirement()
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Token exchange failed: ${e.message}")
+            authRequirementManager.resetAuthRequirement()
         }
+    }
+
+    fun resetAuthRequirement() {
+        authRequirementManager.resetAuthRequirement()
+    }
+
+    suspend fun clearToken() {
+        oAuthCredManager.clearToken()
     }
 }

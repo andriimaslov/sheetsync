@@ -324,6 +324,11 @@ fun SettingsScreen(
                     Text(if (authState.isLoading) "Authorizing..." else "Fire auth")
                 }
             }
+            Button(
+                onClick = { authViewModel.clearToken() }
+            ) {
+                Text("clear token")
+            }
         }
     }
 }

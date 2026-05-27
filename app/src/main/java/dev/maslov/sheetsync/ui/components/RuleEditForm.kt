@@ -14,6 +14,7 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -107,6 +108,9 @@ fun RuleEditForm(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        if (sheetSelectorState.isLoading || tabSelectorUiState.isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
         OutlinedTextField(
             value = title,
             onValueChange = {
@@ -168,7 +172,7 @@ fun RuleEditForm(
                 }
             },
             onRefresh = { selectedSheet?.let { tabSelectorUiState.onRefresh(it) } },
-            enabled = selectedSheet != null && tabSelectorUiState.tabs.isNotEmpty(),
+            enabled = selectedSheet != null,
             isError = errors.tabError != null,
             validationError = errors.tabError
         )

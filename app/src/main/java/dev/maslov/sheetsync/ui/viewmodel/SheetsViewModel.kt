@@ -33,12 +33,44 @@ class SheetsViewModel @Inject constructor(
     private val _tabListUiState = MutableStateFlow<TabsListUiState>(TabsListUiState.Idle)
     val tabListUiState: StateFlow<TabsListUiState> = _tabListUiState.asStateFlow()
 
+    private var pendingSpreadsheetId: String? = null
+
+    init {
+        observeAuthRequirement()
+    }
+
+    private fun observeAuthRequirement() {
+        viewModelScope.launch {
+            authorizationManager.authRequiredFlow.collect { isRequired ->
+                if (!isRequired) {
+                    val currentSheetState = _sheetListUiState.value
+                    if (currentSheetState is SheetListUiState.Error &&
+                        currentSheetState.message == AUTH_ERROR_MESSAGE
+                    ) {
+                        Log.d(TAG, "Auth requirement cleared, retrying sheet list refresh")
+                        refreshSheetList()
+                    }
+
+                    val currentTabState = _tabListUiState.value
+                    if (currentTabState is TabsListUiState.Error &&
+                        currentTabState.message == AUTH_ERROR_MESSAGE
+                    ) {
+                        pendingSpreadsheetId?.let {
+                            Log.d(TAG, "Auth requirement cleared, retrying tab list fetch for $it")
+                            fetchTabList(it)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun refreshSheetList(forceUpdate: Boolean = false) {
         viewModelScope.launch {
             _sheetListUiState.value = SheetListUiState.Loading
             Log.d(TAG, "Refresh sheet list force = $forceUpdate")
             val cached = sheetRepository.getSheetCache()[KEY_SHEETS]
-            if (cached != null && !forceUpdate && cached.isSheetExpired()) {
+            if (cached != null && !forceUpdate && !cached.isSheetExpired()) {
                 _sheetListUiState.value = SheetListUiState.Success(cached.value)
                 Log.d(TAG, "Using cached sheets (${cached.value.size} items)")
                 return@launch
@@ -46,7 +78,7 @@ class SheetsViewModel @Inject constructor(
 
             val accessToken = authorizationManager.validateAndRefreshToken()
             if (accessToken == null) {
-                _sheetListUiState.value = SheetListUiState.Error("Authentication required")
+                _sheetListUiState.value = SheetListUiState.Error(AUTH_ERROR_MESSAGE)
                 return@launch
             }
 
@@ -67,9 +99,10 @@ class SheetsViewModel @Inject constructor(
     fun fetchTabList(spreadsheetId: String, forceUpdate: Boolean = false) {
         viewModelScope.launch {
             _tabListUiState.value = TabsListUiState.Loading
+            pendingSpreadsheetId = spreadsheetId
             Log.d(TAG, "Refresh tab list force = $forceUpdate")
             val cached = sheetRepository.getTabCache()[spreadsheetId]
-            if (cached != null && !forceUpdate && cached.isTabExpired()) {
+            if (cached != null && !forceUpdate && !cached.isTabExpired()) {
                 _tabListUiState.value = TabsListUiState.Success(cached.value)
                 Log.d(TAG, "Using cached tabs for $spreadsheetId")
                 return@launch
@@ -77,7 +110,7 @@ class SheetsViewModel @Inject constructor(
 
             val accessToken = authorizationManager.validateAndRefreshToken()
             if (accessToken == null) {
-                _tabListUiState.value = TabsListUiState.Error("Authentication required")
+                _tabListUiState.value = TabsListUiState.Error(AUTH_ERROR_MESSAGE)
                 return@launch
             }
 
@@ -98,5 +131,6 @@ class SheetsViewModel @Inject constructor(
     companion object {
         private const val TAG = "SheetsViewModel"
         private const val KEY_SHEETS = "all_sheets"
+        private const val AUTH_ERROR_MESSAGE = "Authentication required"
     }
 }
