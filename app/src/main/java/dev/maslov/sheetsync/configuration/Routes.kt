@@ -8,6 +8,12 @@ sealed class Routes(val value: String) {
 
     object Settings : Routes("settings")
 
+    object Logs : Routes("logs")
+
+    object LogDetails : Routes("log_details/{uuid}") {
+        fun createRoute(uuid: String) = "log_details/$uuid"
+    }
+
     object AddRule : Routes("add_rule")
 
     object RuleEdit : Routes("rule_edit/{ruleId}") {

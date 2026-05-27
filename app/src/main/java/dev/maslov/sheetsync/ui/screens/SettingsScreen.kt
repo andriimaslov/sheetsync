@@ -1,13 +1,9 @@
 package dev.maslov.sheetsync.ui.screens
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,9 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
@@ -59,6 +52,7 @@ import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onOpenLogs: () -> Unit,
     settingsViewModel: SettingsViewModel,
     authViewModel: AuthViewModel,
     credentialsViewModel: ClientCredentialsViewModel
@@ -297,6 +291,21 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "System",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Button(
+                onClick = onOpenLogs,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("View Application Logs")
+            }
+
 //            val channelId = "CHANNEL_ID"
 //
 //            val permissionLauncher = rememberLauncherForActivityResult(
@@ -333,8 +342,8 @@ fun SettingsScreen(
     }
 }
 
-//@RequiresPermission("android.permission.POST_NOTIFICATIONS")
-//private fun showSimpleNotification(context: Context, channelId: String) {
+// @RequiresPermission("android.permission.POST_NOTIFICATIONS")
+// private fun showSimpleNotification(context: Context, channelId: String) {
 //    val builder = NotificationCompat.Builder(context, channelId)
 //        .setSmallIcon(android.R.drawable.ic_dialog_info)
 //        .setContentTitle("New Message")
@@ -351,4 +360,4 @@ fun SettingsScreen(
 //    with(NotificationManagerCompat.from(context)) {
 //        notify(101, builder.build())
 //    }
-//}
+// }

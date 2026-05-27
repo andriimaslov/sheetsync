@@ -94,6 +94,7 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.collection)
+    implementation(libs.logcat.ui)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

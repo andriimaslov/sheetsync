@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.maslov.sheetsync.configuration.Routes
 import dev.maslov.sheetsync.ui.screens.AddRuleScreen
+import dev.maslov.sheetsync.ui.screens.LogsDetailsScreen
+import dev.maslov.sheetsync.ui.screens.LogsListScreen
 import dev.maslov.sheetsync.ui.screens.OnboardingScreen
 import dev.maslov.sheetsync.ui.screens.RuleEditScreen
 import dev.maslov.sheetsync.ui.screens.RuleListScreen
@@ -86,7 +88,28 @@ fun AppNavGraph() {
                 onBack = { navController.popBackStack() },
                 settingsViewModel = settingsViewModel,
                 authViewModel = authViewModel,
-                credentialsViewModel = credentialsViewModel
+                credentialsViewModel = credentialsViewModel,
+                onOpenLogs = { navController.navigate(Routes.Logs.value) }
+            )
+        }
+
+        composable(Routes.Logs.value) {
+            LogsListScreen(
+                onBack = { navController.popBackStack() },
+                onLogClick = { item ->
+                    navController.navigate(Routes.LogDetails.createRoute(item.uuid))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.LogDetails.value,
+            arguments = listOf(navArgument("uuid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val uuid = backStackEntry.arguments?.getString("uuid")!!
+            LogsDetailsScreen(
+                uuid = uuid,
+                onBack = { navController.popBackStack() }
             )
         }
 
