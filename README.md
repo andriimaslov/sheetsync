@@ -1,3 +1,5 @@
+[![Build](https://github.com/andriimaslov/sheetsync/actions/workflows/build.yml/badge.svg)](https://github.com/andriimaslov/sheetsync/actions/workflows/build.yml)
+
 # SheetSync
 
 I needed a way to automatically push my bank transaction notifications to Google Sheets without manual entry. So I built this. 
