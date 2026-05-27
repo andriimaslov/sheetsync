@@ -13,7 +13,7 @@
 - ~~RuleProfile? like stuff that can be applied depending on a app that tracked.~~ DROPED
 
 27-05-26
-- delete rule confirm popup
-- UI aligning, save button almost unreachable on add rule
-- app list update. add refresh icon?
-- logs tab
+- ~~delete rule confirm popup~~ DONE
+- ~~UI aligning, save button almost unreachable on add rule~~ DONE
+- ~~app list update. add refresh icon?~~ DONE
+- ~~logs tab~~ DONE
