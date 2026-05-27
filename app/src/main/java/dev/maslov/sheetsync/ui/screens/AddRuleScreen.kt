@@ -96,6 +96,7 @@ fun AddRuleScreen(
                 onBack()
             },
             appList = apps,
+            onRefreshAppList = { appListViewModel.refresh() },
             sheetSelectorState = SheetSelectorState(
                 availableSheets,
                 isLoadingSheets,

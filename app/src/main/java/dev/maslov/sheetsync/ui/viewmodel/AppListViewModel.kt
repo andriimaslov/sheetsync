@@ -20,6 +20,10 @@ class AppListViewModel @Inject constructor(@param:ApplicationContext private val
     val uiState: StateFlow<List<AppModel>> = _uiState.asStateFlow()
 
     init {
+        refresh()
+    }
+
+    fun refresh() {
         viewModelScope.launch {
             _uiState.value = fetchAppsWithNotifications(context)
         }

@@ -6,16 +6,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -26,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import dev.maslov.sheetsync.model.AppModel
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.model.Sheet
@@ -44,6 +37,7 @@ import java.util.UUID
 fun RuleAddForm(
     onSave: (Rule) -> Unit,
     appList: List<AppModel>,
+    onRefreshAppList: () -> Unit,
     sheetSelectorState: SheetSelectorState,
     tabSelectorUiState: TabSelectorUiState,
     parserList: List<NotificationParser>,
@@ -54,7 +48,6 @@ fun RuleAddForm(
     var selectedTab: Sheet? by remember { mutableStateOf(null) }
     var isActive by remember { mutableStateOf(false) }
 
-    var appListExpanded by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var selectedParser by remember { mutableStateOf<NotificationParser?>(null) }
 
@@ -151,57 +144,19 @@ fun RuleAddForm(
             validationError = errors.tabError
         )
 
-        ExposedDropdownMenuBox(
-            expanded = appListExpanded,
-            onExpandedChange = { appListExpanded = !appListExpanded }
-        ) {
-            OutlinedTextField(
-                value = selectedApp?.name ?: "Select an app",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Apps with Notifications On") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = appListExpanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth(),
-                isError = errors.appError != null,
-                supportingText = {
-                    if (errors.appError != null) {
-                        Text(errors.appError!!)
-                    }
+        AppSelector(
+            appList = appList,
+            selectedApp = selectedApp,
+            onSelect = { app ->
+                selectedApp = app
+                if (errors.appError != null) {
+                    errors = errors.copy(appError = null)
                 }
-            )
-
-            ExposedDropdownMenu(
-                expanded = appListExpanded,
-                onDismissRequest = { appListExpanded = false }
-            ) {
-                appList.forEach { app ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = app.name, style = MaterialTheme.typography.bodyLarge)
-                        },
-                        onClick = {
-                            selectedApp = app
-                            appListExpanded = false
-
-                            if (errors.appError != null) {
-                                errors = errors.copy(appError = null)
-                            }
-                        },
-                        leadingIcon = {
-                            AsyncImage(
-                                model = app.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
-            }
-        }
+            },
+            onRefresh = onRefreshAppList,
+            isError = errors.appError != null,
+            errorMessage = errors.appError
+        )
 
         Text("Active")
         Switch(

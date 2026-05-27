@@ -105,6 +105,7 @@ fun RuleEditScreen(
                     onBack()
                 },
                 appList = apps,
+                onRefreshAppList = { appListViewModel.refresh() },
                 sheetSelectorState = SheetSelectorState(
                     availableSheets,
                     isLoadingSheets,
