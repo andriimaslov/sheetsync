@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a6c544fe723efefb90421b1c8bb137f7",
+    "identityHash": "caadc17feb50706b4ac727706acf6024",
     "entities": [
       {
         "tableName": "rules",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` TEXT NOT NULL, `sheetId` TEXT NOT NULL, `lastRunStatus` TEXT NOT NULL, `lastRunAt` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` TEXT NOT NULL, `sheetId` TEXT NOT NULL, `sheetName` TEXT NOT NULL DEFAULT '', `tabName` TEXT NOT NULL DEFAULT '', `lastRunStatus` TEXT NOT NULL, `lastRunAt` TEXT, `appId` TEXT NOT NULL DEFAULT '', `parser` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,12 +17,6 @@
           {
             "fieldPath": "title",
             "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "description",
-            "columnName": "description",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -45,6 +39,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "sheetName",
+            "columnName": "sheetName",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "tabName",
+            "columnName": "tabName",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
             "fieldPath": "lastRunStatus",
             "columnName": "lastRunStatus",
             "affinity": "TEXT",
@@ -53,8 +61,21 @@
           {
             "fieldPath": "lastRunAt",
             "columnName": "lastRunAt",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "appId",
+            "columnName": "appId",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "parser",
+            "columnName": "parser",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
           }
         ],
         "primaryKey": {
@@ -67,8 +88,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6c544fe723efefb90421b1c8bb137f7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'caadc17feb50706b4ac727706acf6024')"
     ]
   }
 }
-
