@@ -1,17 +1,12 @@
 package dev.maslov.sheetsync.service.work
 
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import dev.maslov.sheetsync.MainActivity
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.parser.NotificationParser
@@ -35,8 +30,6 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
     companion object {
         private const val TAG = "NotificationWorker"
-        private const val NOTIFICATION_ID = 9001
-        private const val CHANNEL_ID = "NOTIFICATION_WORKER_CHANNEL"
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -52,9 +45,8 @@ class NotificationProcessingWorker @AssistedInject constructor(
             val accessToken = authorizationManager.validateAndRefreshToken()
             if (accessToken.isNullOrBlank()) {
                 Log.w(TAG, "No access token available; posting user notification to re-authenticate")
-                postReAuthNotification()
                 updateRule(rule, "Auth Required", null)
-                return@withContext Result.failure()
+                return@withContext Result.retry()
             }
 
             if (notificationText.isCreditTransaction()) {
@@ -109,33 +101,6 @@ class NotificationProcessingWorker @AssistedInject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update rule: ${e.message}")
         }
-    }
-
-    private fun postReAuthNotification() {
-        val notificationManager = applicationContext.getSystemService(
-            Context.NOTIFICATION_SERVICE
-        ) as NotificationManager
-
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent = PendingIntent.getActivity(
-            applicationContext,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("SheetSync Re-authentication Required")
-            .setContentText("Your Google account has expired. Open the app to sign in again.")
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .build()
-
-        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
     private fun String.isCreditTransaction(): Boolean = contains("Кред. ліміт")

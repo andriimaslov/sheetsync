@@ -250,7 +250,9 @@ fun RuleEditForm(
                         sheetId = selectedSheet?.id ?: rule.sheetId,
                         sheetName = selectedSheet?.name ?: rule.sheetName,
                         tabName = selectedTab?.properties?.title ?: rule.tabName,
-                        isActive = isActive
+                        isActive = isActive,
+                        appId = selectedApp?.packageName ?: rule.appId,
+                        parser = selectedParser?.name ?: rule.parser
                     )
                     onSave(updatedRule)
                 }
