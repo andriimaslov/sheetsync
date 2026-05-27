@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.maslov.sheetsync.model.uistate.SheetListUiState
@@ -94,38 +90,28 @@ fun AddRuleScreen(
             })
         }
     ) { padding ->
-
-        Column(
-            modifier =
-            Modifier
-                .padding(padding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            RuleAddForm(
-                onSave = { newRule ->
-                    ruleViewModel.addRule(newRule)
-                    onBack()
-                },
-                appList = apps,
-                sheetSelectorState = SheetSelectorState(
-                    availableSheets,
-                    isLoadingSheets,
-                    loadingSheetsError,
-                    { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id) },
-                    { sheetsViewModel.refreshSheetList(forceUpdate = true) }
-                ),
-                tabSelectorUiState = TabSelectorUiState(
-                    availableTabs,
-                    isLoadingTabs,
-                    loadingTabsError,
-                    {},
-                    { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id, true) }
-                ),
-                parserList = parserList,
-                modifier = Modifier.padding(padding)
-            )
-        }
+        RuleAddForm(
+            onSave = { newRule ->
+                ruleViewModel.addRule(newRule)
+                onBack()
+            },
+            appList = apps,
+            sheetSelectorState = SheetSelectorState(
+                availableSheets,
+                isLoadingSheets,
+                loadingSheetsError,
+                { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id) },
+                { sheetsViewModel.refreshSheetList(forceUpdate = true) }
+            ),
+            tabSelectorUiState = TabSelectorUiState(
+                availableTabs,
+                isLoadingTabs,
+                loadingTabsError,
+                {},
+                { sheetMetaData -> sheetsViewModel.fetchTabList(sheetMetaData.id, true) }
+            ),
+            parserList = parserList,
+            modifier = Modifier.padding(padding)
+        )
     }
 }

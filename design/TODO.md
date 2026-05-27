@@ -8,6 +8,12 @@
 
 
 15-05-26
-- cache. TTL 
-- regex presets?
-- RuleProfile? like stuff that can be applied depending on a app that tracked.
+- ~~cache. TTL~~ DONE
+- ~~regex presets?~~ DONE
+- ~~RuleProfile? like stuff that can be applied depending on a app that tracked.~~ DROPED
+
+27-05-26
+- delete rule confirm popup
+- UI aligning, save button almost unreachable on add rule
+- app list update. add refresh icon?
+- logs tab

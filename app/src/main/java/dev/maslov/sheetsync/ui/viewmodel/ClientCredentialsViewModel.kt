@@ -42,7 +42,7 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
                     val areSaved = creds != null && creds.clientId.isNotBlank() && creds.clientSecret.isNotBlank()
                     Log.d(
                         TAG,
-                        "Loaded credentials: clientId=${creds?.clientId}, clientSecret=${creds?.clientSecret}, areSaved=$areSaved"
+                        "Loaded credentials"
                     )
                     _uiState.value = _uiState.value.copy(
                         clientId = credentials.value?.clientId ?: "",
