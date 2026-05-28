@@ -42,10 +42,12 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
             Log.d(TAG, "Processing notification for rule=${rule.id}, package=$packageName, sheet=${rule.sheetId}")
 
+            val lastRunAt = LocalDateTime.now()
+
             val accessToken = authorizationManager.validateAndRefreshToken()
             if (accessToken.isNullOrBlank()) {
                 Log.w(TAG, "No access token available; posting user notification to re-authenticate")
-                updateRule(rule, "Auth Required", null)
+                updateRule(rule, "Auth Required", lastRunAt)
                 return@withContext Result.retry()
             }
 
@@ -57,7 +59,7 @@ class NotificationProcessingWorker @AssistedInject constructor(
             val parser = parsers[rule.parser]
             if (parser == null) {
                 Log.e(TAG, "Unknown parser id=${rule.parser} for rule=${rule.id}")
-                updateRule(rule, "Invalid Parser", null)
+                updateRule(rule, "Invalid Parser", lastRunAt)
                 return@withContext Result.failure()
             }
 
@@ -65,27 +67,32 @@ class NotificationProcessingWorker @AssistedInject constructor(
                 parser.parse(notificationText)
             } catch (e: Exception) {
                 Log.e(TAG, "Parser ${rule.parser} failed for rule=${rule.id}: ${e.message}", e)
-                updateRule(rule, "Parse Error", null)
+                updateRule(rule, "Parse Error", lastRunAt)
                 return@withContext Result.failure()
             }
 
-            val values =
-                listOf(
-                    parsedTransaction.account,
-                    LocalDate.now().toString(),
-                    parsedTransaction.description,
-                    parsedTransaction.amount
-                )
-
-            val result = sheetService.appendRow(accessToken, rule.sheetId, rule.tabName, values)
-            return@withContext if (result.isSuccess) {
-                Log.d(TAG, "Sheet append successful for ${rule.sheetId}")
-                updateRule(rule, "Success", LocalDateTime.now())
-                Result.success()
+            if (parsedTransaction.isEmpty) {
+                updateRule(rule, "Not valid notification", lastRunAt)
+                return@withContext Result.failure()
             } else {
-                Log.w(TAG, "Sheet append failed, scheduling retry")
-                updateRule(rule, "Failed", null)
-                Result.retry()
+                val values =
+                    listOf(
+                        parsedTransaction.get().account,
+                        LocalDate.now().toString(),
+                        parsedTransaction.get().description,
+                        parsedTransaction.get().amount
+                    )
+
+                val result = sheetService.appendRow(accessToken, rule.sheetId, rule.tabName, values)
+                return@withContext if (result.isSuccess) {
+                    Log.d(TAG, "Sheet append successful for ${rule.sheetId}")
+                    updateRule(rule, "Success", lastRunAt)
+                    Result.success()
+                } else {
+                    Log.w(TAG, "Sheet append failed, scheduling retry")
+                    updateRule(rule, "Failed", lastRunAt)
+                    Result.retry()
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Worker failed: ${e.message}", e)
@@ -93,10 +100,10 @@ class NotificationProcessingWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun updateRule(rule: Rule, status: String, lastRunAt: LocalDateTime?) {
+    private suspend fun updateRule(rule: Rule, status: String, lastRunAt: LocalDateTime) {
         try {
             Log.d(TAG, "Updating rule ${rule.id} status to $status, lastRunAt=$lastRunAt")
-            val updatedRule = rule.copy(lastRunStatus = status, lastRunAt = lastRunAt ?: rule.lastRunAt)
+            val updatedRule = rule.copy(lastRunStatus = status, lastRunAt = lastRunAt)
             ruleRepository.updateRule(updatedRule)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update rule: ${e.message}")
