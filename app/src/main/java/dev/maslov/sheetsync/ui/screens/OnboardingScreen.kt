@@ -64,7 +64,7 @@ fun OnboardingScreen(
         )
 
         Button(
-            enabled = !isLastPage || uiState.canFinish,
+            enabled = !isLastPage || uiState.setupCompleted,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -74,7 +74,7 @@ fun OnboardingScreen(
                         pagerState.animateScrollToPage(
                             pagerState.currentPage + 1
                         )
-                    } else if (uiState.canFinish) {
+                    } else if (uiState.setupCompleted) {
                         onFinish()
                     }
                 }
