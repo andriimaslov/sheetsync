@@ -7,10 +7,8 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,8 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,6 +40,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.maslov.sheetsync.ui.components.ClientCredentialsForm
+import dev.maslov.sheetsync.ui.components.NotificationsReadStatusBar
 import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SettingsViewModel
 
@@ -97,81 +94,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Notifications",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = if (isNotificationListenerEnabled) {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.errorContainer
-                        },
-                        shape = MaterialTheme.shapes.medium
-                    )
-                    .padding(16.dp)
-            ) {
-                val icon = if (isNotificationListenerEnabled) {
-                    Icons.Default.CheckCircle
-                } else {
-                    Icons.Default.Warning
-                }
-                val statusColor = if (isNotificationListenerEnabled) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.error
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = statusColor,
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
-                    Text(
-                        text = if (isNotificationListenerEnabled) {
-                            "Notification Access: Enabled"
-                        } else {
-                            "Notification Access: Disabled"
-                        },
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-
-                Text(
-                    text = if (isNotificationListenerEnabled) {
-                        "SheetSync can monitor notifications from other apps."
-                    } else {
-                        "SheetSync needs notification access to monitor incoming notifications from selected apps. Tap the button below to enable it."
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-
-                if (!isNotificationListenerEnabled) {
-                    Button(
-                        onClick = {
-                            val intent = settingsViewModel.getNotificationSettingsIntent()
-                            context.startActivity(intent)
-                            settingsViewModel.refreshNotificationPermissionStatus()
-                        },
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text("Open Notification Access Settings")
-                    }
-                }
-            }
+            NotificationsReadStatusBar(isNotificationListenerEnabled, settingsViewModel, context)
 
             Spacer(modifier = Modifier.height(24.dp))
 

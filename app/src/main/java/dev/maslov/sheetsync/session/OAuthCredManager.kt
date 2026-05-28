@@ -19,7 +19,6 @@ class OAuthCredManager @Inject constructor(private val dataStore: DataStore<OAut
         }
     }
 
-
     suspend fun clearAll() {
         dataStore.updateData { OAuthConfiguration() }
     }
