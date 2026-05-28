@@ -11,7 +11,6 @@ import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.service.SheetRepository
 import dev.maslov.sheetsync.service.googleapis.DriveService
 import dev.maslov.sheetsync.service.googleapis.SheetService
-import dev.maslov.sheetsync.service.token.AuthorizationManager
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +21,6 @@ import kotlinx.coroutines.launch
 class SheetsViewModel @Inject constructor(
     private val driveService: DriveService,
     private val sheetService: SheetService,
-    private val authorizationManager: AuthorizationManager,
     private val sheetRepository: SheetRepository
 
 ) : ViewModel() {
@@ -35,36 +33,6 @@ class SheetsViewModel @Inject constructor(
 
     private var pendingSpreadsheetId: String? = null
 
-    init {
-        observeAuthRequirement()
-    }
-
-    private fun observeAuthRequirement() {
-        viewModelScope.launch {
-            authorizationManager.authRequiredFlow.collect { isRequired ->
-                if (!isRequired) {
-                    val currentSheetState = _sheetListUiState.value
-                    if (currentSheetState is SheetListUiState.Error &&
-                        currentSheetState.message == AUTH_ERROR_MESSAGE
-                    ) {
-                        Log.d(TAG, "Auth requirement cleared, retrying sheet list refresh")
-                        refreshSheetList()
-                    }
-
-                    val currentTabState = _tabListUiState.value
-                    if (currentTabState is TabsListUiState.Error &&
-                        currentTabState.message == AUTH_ERROR_MESSAGE
-                    ) {
-                        pendingSpreadsheetId?.let {
-                            Log.d(TAG, "Auth requirement cleared, retrying tab list fetch for $it")
-                            fetchTabList(it)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     fun refreshSheetList(forceUpdate: Boolean = false) {
         viewModelScope.launch {
             _sheetListUiState.value = SheetListUiState.Loading
@@ -76,13 +44,7 @@ class SheetsViewModel @Inject constructor(
                 return@launch
             }
 
-            val accessToken = authorizationManager.validateAndRefreshToken()
-            if (accessToken == null) {
-                _sheetListUiState.value = SheetListUiState.Error(AUTH_ERROR_MESSAGE)
-                return@launch
-            }
-
-            val result = driveService.getAllSheets(accessToken)
+            val result = driveService.getAllSheets()
             if (result.isSuccess) {
                 val sheets = result.getOrNull() ?: emptyList()
                 sheetRepository.getSheetCache().put(KEY_SHEETS, CachedValue(sheets))
@@ -108,13 +70,7 @@ class SheetsViewModel @Inject constructor(
                 return@launch
             }
 
-            val accessToken = authorizationManager.validateAndRefreshToken()
-            if (accessToken == null) {
-                _tabListUiState.value = TabsListUiState.Error(AUTH_ERROR_MESSAGE)
-                return@launch
-            }
-
-            val result = sheetService.getSpreadsheetInfo(accessToken, spreadsheetId)
+            val result = sheetService.getSpreadsheetInfo(spreadsheetId)
             if (result.isSuccess) {
                 val spreadsheet = result.getOrNull() ?: Spreadsheet()
                 sheetRepository.getTabCache().put(spreadsheetId, CachedValue(spreadsheet.sheets))
@@ -131,6 +87,5 @@ class SheetsViewModel @Inject constructor(
     companion object {
         private const val TAG = "SheetsViewModel"
         private const val KEY_SHEETS = "all_sheets"
-        private const val AUTH_ERROR_MESSAGE = "Authentication required"
     }
 }

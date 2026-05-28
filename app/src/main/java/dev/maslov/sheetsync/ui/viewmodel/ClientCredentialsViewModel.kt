@@ -1,35 +1,31 @@
 package dev.maslov.sheetsync.ui.viewmodel
 
+import android.app.Application
 import android.content.ContentValues.TAG
+import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.maslov.sheetsync.model.OAuthCreds
 import dev.maslov.sheetsync.model.uistate.ClientCredentialsUiState
 import dev.maslov.sheetsync.session.OAuthCredManager
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
-class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManager: OAuthCredManager) : ViewModel() {
+class ClientCredentialsViewModel @Inject constructor(
+    private val application: Application,
+    private val oAuthCredManager: OAuthCredManager
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(ClientCredentialsUiState())
     val uiState: StateFlow<ClientCredentialsUiState> = _uiState.asStateFlow()
-
-    val credentials: StateFlow<OAuthCreds?> = oAuthCredManager.credentialsFlow
-        .map { it.oAuthCreds }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
 
     init {
         observeCredentials()
@@ -37,16 +33,19 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
 
     fun observeCredentials() {
         viewModelScope.launch {
-            credentials.collect { creds ->
+            oAuthCredManager.credentialsFlow.collect { config ->
                 try {
-                    val areSaved = creds != null && creds.clientId.isNotBlank() && creds.clientSecret.isNotBlank()
+                    val serviceAccountJson = config.serviceAccountJson ?: ""
+                    val serviceAccountJsonName = config.serviceAccountJsonName ?: ""
+                    val areSaved =
+                        serviceAccountJson.isNotBlank() && serviceAccountJsonName.isNotBlank()
                     Log.d(
                         TAG,
                         "Loaded credentials"
                     )
                     _uiState.value = _uiState.value.copy(
-                        clientId = credentials.value?.clientId ?: "",
-                        clientSecret = credentials.value?.clientSecret ?: "",
+                        serviceAccountJson = serviceAccountJson,
+                        serviceAccountJsonName = serviceAccountJsonName,
                         areSaved = areSaved,
                         errorMessage = null
                     )
@@ -59,16 +58,41 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
         }
     }
 
-    fun updateClientId(value: String) {
-        _uiState.value = _uiState.value.copy(clientId = value)
-    }
-
-    fun updateClientSecret(value: String) {
-        _uiState.value = _uiState.value.copy(clientSecret = value)
-    }
-
     fun toggleShowSecret() {
         _uiState.value = _uiState.value.copy(showSecret = !_uiState.value.showSecret)
+    }
+
+    fun loadServiceAccountFile(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null)
+                val jsonContent = withContext(Dispatchers.IO) {
+                    application.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        inputStream.bufferedReader().use { it.readText() }
+                    }
+                }
+
+                if (jsonContent != null) {
+                    val fileName = DocumentFile.fromSingleUri(application, uri)?.name
+                    _uiState.value = _uiState.value.copy(
+                        serviceAccountJson = jsonContent,
+                        serviceAccountJsonName = fileName ?: "unknown_file",
+                        isSaving = false
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        errorMessage = "Could not read file content"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load service account file", e)
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    errorMessage = "Failed to load file: ${e.message}"
+                )
+            }
+        }
     }
 
     fun saveCredentials() {
@@ -76,26 +100,21 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
             try {
                 _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null)
 
-                val clientId = _uiState.value.clientId.trim()
-                val clientSecret = _uiState.value.clientSecret.trim()
-
-                if (clientId.isBlank()) {
+                if (_uiState.value.serviceAccountJson.isBlank()) {
                     _uiState.value = _uiState.value.copy(
                         isSaving = false,
-                        errorMessage = "Client ID cannot be empty"
+                        errorMessage = "Service Account JSON must be provided"
                     )
                     return@launch
                 }
 
-                if (clientSecret.isBlank()) {
-                    _uiState.value = _uiState.value.copy(
-                        isSaving = false,
-                        errorMessage = "Client Secret cannot be empty"
+                if (_uiState.value.serviceAccountJson.isNotBlank()) {
+                    oAuthCredManager.saveServiceAccount(
+                        _uiState.value.serviceAccountJson.trim(),
+                        _uiState.value.serviceAccountJsonName
                     )
-                    return@launch
                 }
 
-                oAuthCredManager.saveCredentials(clientId, clientSecret)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     areSaved = true,
@@ -103,9 +122,7 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
                 )
                 Log.d(
                     TAG,
-                    "Credentials saved successfully: clientId=${clientId.take(
-                        10
-                    )}..., clientSecret=${clientSecret.take(10)}..."
+                    "Credentials saved successfully"
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -119,8 +136,8 @@ class ClientCredentialsViewModel @Inject constructor(private val oAuthCredManage
     fun clearCredentials() {
         viewModelScope.launch {
             try {
-                oAuthCredManager.clearCredentials()
-                _uiState.value = ClientCredentialsUiState(showSecret = false)
+                oAuthCredManager.clearAll()
+                _uiState.value = ClientCredentialsUiState()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Failed to clear credentials: ${e.message}"

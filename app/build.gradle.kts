@@ -43,6 +43,12 @@ android {
         compose = true
         buildConfig = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/DEPENDENCIES"
+        }
+    }
     buildToolsVersion = "36.0.0"
 }
 
@@ -80,6 +86,8 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.google.auth2)
+    implementation(libs.androidx.documentfile)
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.work)

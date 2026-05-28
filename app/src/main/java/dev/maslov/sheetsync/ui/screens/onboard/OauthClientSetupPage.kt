@@ -1,4 +1,6 @@
 package dev.maslov.sheetsync.ui.screens.onboard
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +26,14 @@ fun OauthClientSetupPage(
     onSetupReset: () -> Unit
 ) {
     val credentialsUiState by credentialsViewModel.uiState.collectAsState()
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let { credentialsViewModel.loadServiceAccountFile(it) }
+        }
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,8 +49,9 @@ fun OauthClientSetupPage(
 
         ClientCredentialsForm(
             uiState = credentialsUiState,
-            onClientIdChange = { credentialsViewModel.updateClientId(it) },
-            onClientSecretChange = { credentialsViewModel.updateClientSecret(it) },
+            onSelectServiceAccountFile = {
+                filePickerLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+            },
             onToggleShowSecret = { credentialsViewModel.toggleShowSecret() },
             onSave = {
                 credentialsViewModel.saveCredentials()

@@ -30,18 +30,6 @@ class OnboardingViewModel @Inject constructor(private val preferences: AppPrefer
     )
     val uiState = _uiState.asStateFlow()
 
-    fun onLoginSuccess() {
-        _uiState.update {
-            it.copy(loginCompleted = true)
-        }
-    }
-
-    fun onLogoutSuccess() {
-        _uiState.update {
-            it.copy(loginCompleted = false)
-        }
-    }
-
     fun onSetupCompleted() {
         _uiState.update {
             it.copy(setupCompleted = true)

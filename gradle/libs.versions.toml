@@ -32,6 +32,8 @@ okhttp = "5.3.2"
 work = "2.11.2"
 androidxCollection = "1.6.0"
 logcat-ui = "1.1.0"
+googleoauth = "1.47.0"
+documentfile = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -84,6 +86,8 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 androidx-collection = { group = "androidx.collection", name = "collection", version.ref = "androidxCollection" }
 logcat-ui = { group = "de.brudaswen.android.logcat", name = "logcat-ui", version.ref = "logcat-ui" }
+google-auth2 = {group = "com.google.auth", name = "google-auth-library-oauth2-http", version.ref = "googleoauth"}
+androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 
 
 [plugins]

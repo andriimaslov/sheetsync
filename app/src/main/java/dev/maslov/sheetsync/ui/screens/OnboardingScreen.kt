@@ -18,8 +18,6 @@ import androidx.compose.ui.unit.dp
 import dev.maslov.sheetsync.ui.screens.onboard.FinalPage
 import dev.maslov.sheetsync.ui.screens.onboard.OauthClientSetupPage
 import dev.maslov.sheetsync.ui.screens.onboard.PageIndicator
-import dev.maslov.sheetsync.ui.screens.onboard.SignInWithGooglePage
-import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.OnboardingViewModel
 import kotlinx.coroutines.launch
@@ -28,15 +26,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(
     onboardingViewModel: OnboardingViewModel,
-    authViewModel: AuthViewModel,
     credentialsViewModel: ClientCredentialsViewModel,
     onFinish: () -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 2 })
     val scope = rememberCoroutineScope()
     val uiState by onboardingViewModel.uiState.collectAsState()
 
-    val isLastPage = pagerState.currentPage == 2
+    val isLastPage = pagerState.currentPage == 1
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -47,17 +44,7 @@ fun OnboardingScreen(
         ) { page ->
 
             when (page) {
-                0 -> SignInWithGooglePage(
-                    authViewModel = authViewModel,
-                    onLoginSuccess = {
-                        onboardingViewModel.onLoginSuccess()
-                    },
-                    onLogoutSuccess = {
-                        onboardingViewModel.onLogoutSuccess()
-                    }
-                )
-
-                1 -> OauthClientSetupPage(
+                0 -> OauthClientSetupPage(
                     credentialsViewModel = credentialsViewModel,
                     onSetupCompleted = {
                         onboardingViewModel.onSetupCompleted()
@@ -67,13 +54,13 @@ fun OnboardingScreen(
                     }
                 )
 
-                2 -> FinalPage()
+                1 -> FinalPage()
             }
         }
 
         PageIndicator(
             currentPage = pagerState.currentPage,
-            pageCount = 3
+            pageCount = 2
         )
 
         Button(

@@ -12,9 +12,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dagger.hilt.android.AndroidEntryPoint
 import dev.maslov.sheetsync.model.Rule
-import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.rules.RuleRepository
-import dev.maslov.sheetsync.service.token.AuthorizationManager
 import dev.maslov.sheetsync.service.work.NotificationProcessingWorker
 import jakarta.inject.Inject
 import java.util.concurrent.TimeUnit
@@ -28,12 +26,6 @@ import kotlinx.coroutines.launch
 class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var repository: RuleRepository
-
-    @Inject
-    lateinit var sheetService: SheetService
-
-    @Inject
-    lateinit var authorizationManager: AuthorizationManager
 
     @Inject
     lateinit var workManager: WorkManager

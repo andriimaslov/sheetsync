@@ -11,7 +11,6 @@ import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.parser.NotificationParser
 import dev.maslov.sheetsync.service.rules.RuleRepository
-import dev.maslov.sheetsync.service.token.AuthorizationManager
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -22,7 +21,6 @@ import kotlinx.coroutines.withContext
 class NotificationProcessingWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    private val authorizationManager: AuthorizationManager,
     private val sheetService: SheetService,
     private val ruleRepository: RuleRepository,
     private val parsers: Map<String, @JvmSuppressWildcards NotificationParser>
@@ -69,12 +67,6 @@ class NotificationProcessingWorker @AssistedInject constructor(
                 updateRule(rule, "Not valid notification", lastRunAt)
                 return@withContext Result.success()
             } else {
-                val accessToken = authorizationManager.validateAndRefreshToken()
-                if (accessToken.isNullOrBlank()) {
-                    Log.w(TAG, "No access token available; posting user notification to re-authenticate")
-                    updateRule(rule, "Auth Required", lastRunAt)
-                    return@withContext Result.retry()
-                }
                 val values =
                     listOf(
                         parsedTransaction.get().account,
@@ -83,7 +75,7 @@ class NotificationProcessingWorker @AssistedInject constructor(
                         parsedTransaction.get().amount
                     )
 
-                val result = sheetService.appendRow(accessToken, rule.sheetId, rule.tabName, values)
+                val result = sheetService.appendRow(rule.sheetId, rule.tabName, values)
                 return@withContext if (result.isSuccess) {
                     Log.d(TAG, "Sheet append successful for ${rule.sheetId}")
                     updateRule(rule, "Success", lastRunAt)

@@ -1,9 +1,6 @@
 package dev.maslov.sheetsync.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,7 +22,6 @@ import dev.maslov.sheetsync.model.uistate.TabSelectorUiState
 import dev.maslov.sheetsync.model.uistate.TabsListUiState
 import dev.maslov.sheetsync.ui.components.RuleEditForm
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
-import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ParserViewModel
 import dev.maslov.sheetsync.ui.viewmodel.RuleViewModel
 import dev.maslov.sheetsync.ui.viewmodel.SheetsViewModel
@@ -40,7 +36,6 @@ fun RuleEditScreen(
     ruleViewModel: RuleViewModel,
     appListViewModel: AppListViewModel,
     sheetsViewModel: SheetsViewModel,
-    authViewModel: AuthViewModel,
     parserViewModel: ParserViewModel
 ) {
     val rules by ruleViewModel.rules.collectAsState()
@@ -70,19 +65,8 @@ fun RuleEditScreen(
         else -> null
     }
 
-    val oauthLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        authViewModel.onSheetsResolutionResult(result.data)
-    }
-
     LaunchedEffect(Unit) {
         sheetsViewModel.refreshSheetList()
-        authViewModel.resolutionTrigger.collect { intentSender ->
-            oauthLauncher.launch(
-                IntentSenderRequest.Builder(intentSender).build()
-            )
-        }
     }
 
     Scaffold(

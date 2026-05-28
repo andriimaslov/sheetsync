@@ -18,7 +18,6 @@ import dev.maslov.sheetsync.ui.screens.RuleListScreen
 import dev.maslov.sheetsync.ui.screens.SettingsScreen
 import dev.maslov.sheetsync.ui.screens.SplashScreen
 import dev.maslov.sheetsync.ui.viewmodel.AppListViewModel
-import dev.maslov.sheetsync.ui.viewmodel.AuthViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ClientCredentialsViewModel
 import dev.maslov.sheetsync.ui.viewmodel.OnboardingViewModel
 import dev.maslov.sheetsync.ui.viewmodel.ParserViewModel
@@ -30,7 +29,6 @@ import java.util.UUID
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
-    val authViewModel: AuthViewModel = hiltViewModel()
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val credentialsViewModel: ClientCredentialsViewModel = hiltViewModel()
     val ruleViewModel: RuleViewModel = hiltViewModel()
@@ -58,7 +56,6 @@ fun AppNavGraph() {
         composable(Routes.Onboarding.value) {
             OnboardingScreen(
                 onboardingViewModel = onboardingViewModel,
-                authViewModel = authViewModel,
                 credentialsViewModel = credentialsViewModel,
                 onFinish = {
                     onboardingViewModel.finishOnboarding()
@@ -87,7 +84,6 @@ fun AppNavGraph() {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
                 settingsViewModel = settingsViewModel,
-                authViewModel = authViewModel,
                 credentialsViewModel = credentialsViewModel,
                 onOpenLogs = { navController.navigate(Routes.Logs.value) }
             )
@@ -119,7 +115,6 @@ fun AppNavGraph() {
                 ruleViewModel = ruleViewModel,
                 appListViewModel = appListViewModel,
                 sheetsViewModel = sheetsViewModel,
-                authViewModel = authViewModel,
                 parserViewModel = parserViewModel
             )
         }
@@ -140,7 +135,6 @@ fun AppNavGraph() {
                 ruleViewModel = ruleViewModel,
                 appListViewModel = appListViewModel,
                 sheetsViewModel = sheetsViewModel,
-                authViewModel = authViewModel,
                 parserViewModel = parserViewModel
             )
         }

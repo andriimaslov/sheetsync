@@ -6,13 +6,11 @@ import dev.maslov.sheetsync.model.SheetMetadata
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface GoogleDriveApi {
     @GET("https://www.googleapis.com/drive/v3/files")
     suspend fun listFiles(
-        @Header("Authorization") authorization: String,
         @Query("q") query: String,
         @Query("spaces") spaces: String = "drive",
         @Query("fields") fields: String = "files(id,name,mimeType,modifiedTime)",
@@ -23,10 +21,9 @@ interface GoogleDriveApi {
 @Singleton
 class DriveService @Inject constructor(private val driveApi: GoogleDriveApi) {
 
-    suspend fun getAllSheets(accessToken: String): Result<List<SheetMetadata>> = runCatching {
+    suspend fun getAllSheets(): Result<List<SheetMetadata>> = runCatching {
         val query = "mimeType='application/vnd.google-apps.spreadsheet' and trashed=false"
         val response = driveApi.listFiles(
-            authorization = "Bearer $accessToken",
             query = query
         )
 

@@ -20,17 +20,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.maslov.sheetsync.model.uistate.ClientCredentialsUiState
 
 @Composable
 fun ClientCredentialsForm(
     uiState: ClientCredentialsUiState,
-    onClientIdChange: (String) -> Unit,
-    onClientSecretChange: (String) -> Unit,
     onToggleShowSecret: () -> Unit,
+    onSelectServiceAccountFile: () -> Unit,
     onSave: () -> Unit,
     onClear: () -> Unit,
     modifier: Modifier = Modifier
@@ -84,37 +81,40 @@ fun ClientCredentialsForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = uiState.clientId,
-            onValueChange = onClientIdChange,
-            label = { Text("Client ID") },
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            singleLine = true,
-            shape = MaterialTheme.shapes.small
-        )
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = onSelectServiceAccountFile,
+                modifier = Modifier.weight(1f),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text("Select JSON File")
+            }
+        }
 
         TextField(
-            value = uiState.clientSecret,
-            onValueChange = onClientSecretChange,
-            label = { Text("Client Secret") },
+            value = if (uiState.showSecret) {
+                uiState.serviceAccountJson
+            } else {
+                uiState.serviceAccountJsonName
+            },
+            onValueChange = {},
+            label = { Text("Service Account JSON") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
-            singleLine = true,
+            maxLines = 10,
             shape = MaterialTheme.shapes.small,
-            visualTransformation = if (uiState.showSecret) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
             trailingIcon = {
-                IconButton(onClick = onToggleShowSecret, modifier = Modifier.size(24.dp)) {
+                IconButton(onClick = onToggleShowSecret, modifier = Modifier.size(48.dp)) {
                     Text(
                         text = if (uiState.showSecret) "Hide" else "Show",
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                 }
             }
