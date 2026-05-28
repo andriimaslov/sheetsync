@@ -44,15 +44,9 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
             val lastRunAt = LocalDateTime.now()
 
-            val accessToken = authorizationManager.validateAndRefreshToken()
-            if (accessToken.isNullOrBlank()) {
-                Log.w(TAG, "No access token available; posting user notification to re-authenticate")
-                updateRule(rule, "Auth Required", lastRunAt)
-                return@withContext Result.retry()
-            }
-
             if (notificationText.isCreditTransaction()) {
                 Log.d(TAG, "Skipping credit limit transaction notification")
+                updateRule(rule, "Skip credit", lastRunAt)
                 return@withContext Result.success()
             }
 
@@ -73,8 +67,14 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
             if (parsedTransaction.isEmpty) {
                 updateRule(rule, "Not valid notification", lastRunAt)
-                return@withContext Result.failure()
+                return@withContext Result.success()
             } else {
+                val accessToken = authorizationManager.validateAndRefreshToken()
+                if (accessToken.isNullOrBlank()) {
+                    Log.w(TAG, "No access token available; posting user notification to re-authenticate")
+                    updateRule(rule, "Auth Required", lastRunAt)
+                    return@withContext Result.retry()
+                }
                 val values =
                     listOf(
                         parsedTransaction.get().account,
