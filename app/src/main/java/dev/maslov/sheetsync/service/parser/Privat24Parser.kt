@@ -13,7 +13,7 @@ class Privat24Parser @Inject constructor() : NotificationParser {
         private const val NAME = "PRIVAT24"
         private const val TAG = "Privat24Parser"
         private const val ACCOUNT_TYPE = "fiz"
-        val notificationTextRegex = """([+-][\d\s]+)\S\s+(.*?)(?=\s+\*|\n|\d{2}:\d{2})""".toRegex()
+        val notificationTextRegex = """([+-][\d+(.|,)\s]+)\S\s+(.*?)(?=\s+\*|\n|\d{2}:\d{2})""".toRegex()
     }
     override fun parse(text: String): Optional<BankTransaction> {
         val matchResult = notificationTextRegex.find(text)
