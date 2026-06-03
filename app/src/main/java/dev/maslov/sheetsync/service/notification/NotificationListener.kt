@@ -4,6 +4,7 @@ import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import android.util.LruCache
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -32,6 +33,7 @@ class NotificationListener : NotificationListenerService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var activeRules = listOf<Rule>()
+    private val processedNotifications = LruCache<String, String>(100)
 
     private companion object {
         const val TAG = "NotificationListener"
@@ -51,16 +53,32 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
 
+        if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) {
+            Log.d(TAG, "Ignoring group summary notification from ${sbn.packageName}")
+            return
+        }
+
         val packageName = sbn.packageName
+        val notificationKey = sbn.key
+        val extras = sbn.notification.extras
+        val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
+
+        val lastSeenText = processedNotifications[notificationKey]
+        if (lastSeenText == notificationText) {
+            Log.d(TAG, "Ignoring duplicate notification update for key: $notificationKey")
+            return
+        }
+
         Log.d(TAG, "Notification posted from package: $packageName")
         Log.d(TAG, "Currently tracking ${activeRules.size} active rules")
 
         val matchedRule = activeRules.find { it.appId == packageName }
-        val extras = sbn.notification.extras
-        val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
 
         if (matchedRule != null) {
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
+
+            processedNotifications.put(notificationKey, notificationText)
+
             val workData = workDataOf(
                 "ruleId" to matchedRule.id.toString(),
                 "pkg" to packageName,
