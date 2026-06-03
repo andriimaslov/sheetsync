@@ -24,7 +24,7 @@ class Privat24BusinessParser @Inject constructor() : NotificationParser {
             val rawDescription = matchResult.groupValues[2]
                 .replace(Regex("\\s+"), " ")
                 .trim()
-            Optional.of<BankTransaction>(BankTransaction(ACCOUNT_TYPE, rawDescription, rawAmount))
+            Optional.of<BankTransaction>(BankTransaction(ACCOUNT_TYPE, rawDescription, rawAmount.toDouble()))
         } else {
             Log.d(TAG, "Failed to match text with regex")
             Optional.empty<BankTransaction>()
