@@ -108,5 +108,4 @@ class NotificationProcessingWorker @AssistedInject constructor(
             Log.e(TAG, "Failed to update rule: ${e.message}")
         }
     }
-
 }

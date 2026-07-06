@@ -47,7 +47,16 @@ class NotificationListenerTest {
         val pkg = "com.example.app"
         val rule = createRule(pkg)
         setActiveRules(listOf(rule))
-
+        val cache = mutableMapOf<String, String>()
+        val lruCacheMock = mockk<LruCache<String, String>>()
+        every { lruCacheMock.get(any<String>()) } answers { cache[it.invocation.args[0] as String] }
+        every { lruCacheMock.put(any<String>(), any<String>()) } answers
+            {
+                cache[it.invocation.args[0] as String] = it.invocation.args[1] as String
+                null
+            }
+        every { lruCacheMock.size() } answers { 0 }
+        setProcessedNotificationsCache(lruCacheMock)
         val sbn = createMockSbn(pkg, "key1", "Some text", isSummary = false)
 
         listener.onNotificationPosted(sbn)
@@ -84,7 +93,7 @@ class NotificationListenerTest {
                 cache[it.invocation.args[0] as String] = it.invocation.args[1] as String
                 null
             }
-
+        every { lruCacheMock.size() } answers { 0 }
         setProcessedNotificationsCache(lruCacheMock)
 
         listener.onNotificationPosted(sbn)
@@ -107,6 +116,7 @@ class NotificationListenerTest {
                 cache[it.invocation.args[0] as String] = it.invocation.args[1] as String
                 null
             }
+        every { lruCacheMock.size() } answers { 0 }
         setProcessedNotificationsCache(lruCacheMock)
 
         val sbn1 = createMockSbn(pkg, "key1", "Same Text", isSummary = false)
@@ -145,7 +155,7 @@ class NotificationListenerTest {
                 cache[it.invocation.args[0] as String] = it.invocation.args[1] as String
                 null
             }
-
+        every { lruCacheMock.size() } answers { 0 }
         setProcessedNotificationsCache(lruCacheMock)
 
         val sbn1 = createMockSbn(pkg, "key1", "Text 1", isSummary = false)
