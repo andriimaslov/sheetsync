@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import dev.maslov.sheetsync.model.NotificationText
 import dev.maslov.sheetsync.model.Rule
 import dev.maslov.sheetsync.service.googleapis.SheetService
 import dev.maslov.sheetsync.service.parser.NotificationParser
@@ -34,7 +35,7 @@ class NotificationProcessingWorker @AssistedInject constructor(
         try {
             val ruleId = inputData.getString("ruleId") ?: ""
             val packageName = inputData.getString("pkg") ?: ""
-            val notificationText = inputData.getString("text") ?: ""
+            val notificationText = NotificationText(inputData.getString("text") ?: "")
 
             val rule = ruleRepository.getRuleById(UUID.fromString(ruleId))
 
@@ -42,9 +43,15 @@ class NotificationProcessingWorker @AssistedInject constructor(
 
             val lastRunAt = LocalDateTime.now()
 
-            if (notificationText.isCreditTransaction()) {
+            if (notificationText.isCredit()) {
                 Log.d(TAG, "Skipping credit limit transaction notification")
                 updateRule(rule, "Skip credit", lastRunAt)
+                return@withContext Result.success()
+            }
+
+            if (notificationText.isRejection()) {
+                Log.d(TAG, "Skipping rejection transaction notification")
+                updateRule(rule, "Skip rejection", lastRunAt)
                 return@withContext Result.success()
             }
 
@@ -56,7 +63,7 @@ class NotificationProcessingWorker @AssistedInject constructor(
             }
 
             val parsedTransaction = try {
-                parser.parse(notificationText)
+                parser.parse(notificationText.value)
             } catch (e: Exception) {
                 Log.e(TAG, "Parser ${rule.parser} failed for rule=${rule.id}: ${e.message}", e)
                 updateRule(rule, "Parse Error", lastRunAt)
@@ -102,5 +109,4 @@ class NotificationProcessingWorker @AssistedInject constructor(
         }
     }
 
-    private fun String.isCreditTransaction(): Boolean = contains("Кред. ліміт")
 }

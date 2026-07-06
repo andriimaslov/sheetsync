@@ -43,7 +43,7 @@ class Privat24Parser @Inject constructor() : NotificationParser {
                 Optional.empty<BankTransaction>()
             }
         } else {
-            Log.d(TAG, "Failed to match text with regex")
+            Log.d(TAG, "Failed to match text with regex. Notification: $text")
             Optional.empty<BankTransaction>()
         }
     }

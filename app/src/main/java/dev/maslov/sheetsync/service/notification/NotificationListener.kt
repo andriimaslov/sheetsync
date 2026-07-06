@@ -53,31 +53,35 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
 
-        if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) {
-            Log.d(TAG, "Ignoring group summary notification from ${sbn.packageName}")
-            return
-        }
-
         val packageName = sbn.packageName
-        val notificationKey = sbn.key
-        val extras = sbn.notification.extras
-        val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
-
-        val lastSeenText = processedNotifications[notificationKey]
-        if (lastSeenText == notificationText) {
-            Log.d(TAG, "Ignoring duplicate notification update for key: $notificationKey")
-            return
-        }
-
-        Log.d(TAG, "Notification posted from package: $packageName")
-        Log.d(TAG, "Currently tracking ${activeRules.size} active rules")
-
         val matchedRule = activeRules.find { it.appId == packageName }
 
         if (matchedRule != null) {
+            if ((sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) {
+                Log.d(TAG, "Ignoring group summary notification from ${sbn.packageName}")
+                return
+            }
+
+            val notificationKey = sbn.key
+            val extras = sbn.notification.extras
+            val notificationText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: "No text content"
+
+            Log.d(TAG, "notification key - $notificationKey")
+            Log.d(TAG, "text - $notificationText")
+            Log.d(TAG, "cache size before - ${processedNotifications.size()}")
+            val lastSeenText = processedNotifications[notificationKey]
+            if (lastSeenText == notificationText) {
+                Log.d(TAG, "Ignoring duplicate notification update for key: $notificationKey")
+                return
+            }
+
+            Log.d(TAG, "Notification posted from package: $packageName")
+            Log.d(TAG, "Currently tracking ${activeRules.size} active rules")
+
             Log.d(TAG, "✓ Notification matched rule: ${matchedRule.title} (appId: ${matchedRule.appId})")
 
             processedNotifications.put(notificationKey, notificationText)
+            Log.d(TAG, "cache size after - ${processedNotifications.size()}")
 
             val workData = workDataOf(
                 "ruleId" to matchedRule.id.toString(),
